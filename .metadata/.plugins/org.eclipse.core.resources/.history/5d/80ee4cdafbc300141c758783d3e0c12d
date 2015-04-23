@@ -1,0 +1,22 @@
+
+<ion-view view-title="Scanner">
+
+<ion-header-bar align-title="center" class="bar-stable">
+  
+</ion-header-bar>
+
+<div class="bar bar-header">
+  <button class= "button" onclick="scan()">Scan</button> 
+  <h1 class="title">List of devices</h1>
+  <button class= "button" onclick="clear()">Clear</button> 
+</div>
+ <ion-content> 
+<!--    <ul class="list" id="list"> -->
+      
+<!--    </ul> -->
+   <ion-list id='list'>
+   
+   </ion-list>
+</ion-content>
+
+</ion-view>

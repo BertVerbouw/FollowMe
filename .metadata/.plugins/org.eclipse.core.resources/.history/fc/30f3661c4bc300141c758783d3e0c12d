@@ -1,0 +1,5 @@
+<ion-view view-title="Scanning">
+ <ion-content>
+ 	<button>Test</button>
+ </ion-content>
+</ion-view>

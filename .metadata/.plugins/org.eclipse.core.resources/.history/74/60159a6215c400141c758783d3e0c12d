@@ -1,0 +1,22 @@
+angular.module('starter.controllers', [])
+
+.controller('ScanCtrl', function($scope) {
+	
+	
+	
+})
+
+.controller('SendCtrl', function($scope) {})
+
+.controller('LoadingCtrl', function($scope, $ionicLoading) {
+  $scope.show = function() {
+    $ionicLoading.show({
+      template: 'Scanning...'
+    });
+  };
+  $scope.hide = function(){
+    $ionicLoading.hide();
+  };
+})
+
+.controller('DetailCtrl', function($scope) {})

@@ -1,0 +1,38 @@
+  <ion-modal-view ng-controller = "detailController as detail" on-swipe-right = "bluetooth.closeModal()">
+    <ion-header-bar class="bar bar-positive">
+      <h1 class="title">Beacon info</h1>
+    </ion-header-bar>
+    <ion-content>
+      <div class="list list-inset">
+
+          <div class="item">
+            Type: {{detail.beacon().type}}
+          </div>
+
+          <div class="item">
+            Major: {{detail.beacon().major}} | Minor: {{detail.beacon().minor}}
+          </div>
+
+          <div class="item">
+            UUID: {{detail.beacon().uuid}}
+          </div>
+
+          <div class="item">
+            Timestamp: {{detail.beacon().timeStamp | date : 'yyyy-MM-dd HH:mm:ss'}}
+          </div>
+          
+           <div class="item">
+            <a class="button button-block" ng-click="detail.goToRoom();bluetooth.closeModal();">Room detail</a>
+          </div>
+          
+        </div>
+        
+        <a class="button button-stable button-block" ng-click="detail.sendToRPi()">Send info</a>
+       
+        
+    </ion-content> 
+      <ion-footer-bar align-title = "center">
+        <p class = "title" ng-click="bluetooth.closeModal()">Close</p>
+      </ion-footer-bar>
+  </ion-modal-view>
+

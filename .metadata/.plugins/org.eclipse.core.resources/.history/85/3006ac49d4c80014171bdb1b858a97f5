@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/1.4.1/css/ionicons.min.css">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+    <!-- your app's js -->
+    <script src="js/app.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/services.js"></script>
+    
+  </head>
+  
+  <body ng-app="starter">
+  
+  
+
+<body>
+  <ion-tabs class="tabs-stable">
+    <ion-tab icon="ion-upload" ui-sref="home">
+      <ion-nav-view name="home"></ion-nav-view>
+    </ion-tab>
+    <ion-tab icon="ion-bluetooth" ui-sref="help">
+      <ion-nav-view name="help"></ion-nav-view>
+    </ion-tab>
+  </ion-tabs>
+</body>
+
+
+<script>
+function scan(){
+	console.log('scanning...');
+	ble.scan([], 1, function(device) {
+	    showDevices(device);
+	}, console.log('fail'));
+// 	showDevices('test');
+}
+
+function clearlist(){
+	console.log('clearing...');
+	var elements = document.getElementsByClassName('item');
+	while(elements.length > 0)
+	{
+	 	elements[0].parentNode.removeChild(elements[0]);
+	}
+}
+
+function send(){
+	console.log('sending...');
+	
+}
+
+function showDevices(device){
+	 var node = document.createElement("li");                 // Create a <ion-item> node
+	 var textnode = document.createTextNode(JSON.stringify(device));         // Create a text node
+	 node.appendChild(textnode);				// Append the text to <li>
+ 	 node.setAttribute("class", "item");
+ 	 node.setAttribute("ng-click", "goToDetail()");
+	 document.getElementById("list").appendChild(node);     // Append <li> to <ul> with id="list"	
+	 
+// 	 var deviceinfo = device;
+// 	 console.log(deviceinfo.id);
+}
+
+
+//Specify your beacon 128bit UUIDs here.
+var regions =
+[
+//Beacon's.
+{uuid:'E2C56DB5-DFFB-48D2-B060-D0F5A71096E0'},
+{uuid:'5A4BCFCE-174E-4BAC-A814-092E77F6B7E5'}
+];
+//Dictionary of beacons.
+var beacons = {};
+//Timer that displays list of beacons.
+
+
+function startScan()
+{
+	//The delegate object holds the iBeacon callback functions
+	//specified below.
+	var delegate = new cordova.plugins.locationManager.Delegate();
+	//Called continuously when ranging beacons.
+	delegate.didRangeBeaconsInRegion = function(pluginResult)
+	{
+	//console.log('didRangeBeaconsInRegion: ' + JSON.stringify(pluginResult))
+	for (var i in pluginResult.beacons)
+	{
+		//Insert beacon into table of found beacons.
+		var beacon = pluginResult.beacons[i];
+		beacon.timeStamp = Date.now();
+		var key = beacon.uuid +":"+ i;
+		beacons[key] = beacon;
+		console.log(JSON.stringify(beacons));
+	}
+	};
+//Called when starting to monitor a region.
+//(Not used in this example, included as a reference.)
+	delegate.didStartMonitoringForRegion = function(pluginResult)
+	{
+	//console.log('didStartMonitoringForRegion:' + JSON.stringify(pluginResult))
+	};
+	//Called when monitoring and the state of a region changes.
+	//(Not used in this example, included as a reference.)
+	delegate.didDetermineStateForRegion = function(pluginResult)
+	{
+	//console.log('didDetermineStateForRegion: ' + JSON.stringify(pluginResult))
+	};
+	//Set the delegate object to use.
+	cordova.plugins.locationManager.setDelegate(delegate);
+	//Request permission from user to access location info.
+	//This is needed on iOS 8.
+	cordova.plugins.locationManager.requestAlwaysAuthorization();
+	//Start monitoring and ranging beacons.
+	for (var i in regions)
+	{
+		var beaconRegion = new cordova.plugins.locationManager.BeaconRegion(
+		i + 1,
+		regions[i].uuid);
+		//Start ranging.
+		cordova.plugins.locationManager.startRangingBeaconsInRegion(beaconRegion)
+		.fail(console.error)
+		.done();
+		//Start monitoring.
+		//(Not used in this example, included as a reference.)
+		cordova.plugins.locationManager.startMonitoringForRegion(beaconRegion)
+		.fail(console.error)
+		.done();
+	}
+}
+function stopScan()
+{
+	for(var i in beacons)
+		{
+		var uuid = beacons[i].uuid;
+		var identifier = i + '1';
+		var minor = beacons[i].minor;
+		var major = beacons[i].major;
+		var beaconRegion = new cordova.plugins.locationManager.BeaconRegion(identifier, uuid, major, minor);
+		cordova.plugins.locationManager.stopRangingBeaconsInRegion(beaconRegion)
+	    .fail(console.error)
+	    .done(console.log("stopped " + beacons[i].uuid));
+		cordova.plugins.locationManager.stopMonitoringBeaconsInRegion(beaconRegion)
+		.fail(console.error)
+	    .done(console.log("stopped monitoring"));
+		showDevices(beacons[i].uuid);
+		showDevices(beacons[i].proximity);
+		showDevices(beacons[i].major);
+		showDevices(beacons[i].minor);
+		showDevices("");
+		}
+}
+
+
+
+
+</script>
+
+  </body>
+</html>

@@ -1,0 +1,55 @@
+angular.module('starter.controllers', [])
+
+.controller('ScanCtrl', function($scope) {
+	
+	function scan(){
+		console.log('scanning...');
+//	 	ble.scan([], 1, function(device) {
+//	 	    showDevices(device);
+//	 	}, console.log('fail'));
+		showDevices('test');
+	}
+
+	function clearlist(){
+		console.log('clearing...');
+		var elements = document.getElementsByClassName('item');
+		while(elements.length > 0)
+		{
+		 	elements[0].parentNode.removeChild(elements[0]);
+		}
+	}
+
+	function send(){
+		console.log('sending...');
+		
+	}
+
+	function showDevices(device){
+		 var node = document.createElement("li");                 // Create a <ion-item> node
+		 var textnode = document.createTextNode(JSON.stringify(device));         // Create a text node
+		 node.appendChild(textnode);				// Append the text to <li>
+	 	 node.setAttribute("class", "item");
+	 	 node.setAttribute("ui-sref", "#/detail");
+	 	 node.setAttribute("onclick", $state.go("tab.detail"););
+		 document.getElementById("list").appendChild(node);     // Append <li> to <ul> with id="list"	
+		 
+//	 	 var deviceinfo = device;
+//	 	 console.log(deviceinfo.id);
+	}
+	
+})
+
+.controller('SendCtrl', function($scope) {})
+
+.controller('LoadingCtrl', function($scope, $ionicLoading) {
+  $scope.show = function() {
+    $ionicLoading.show({
+      template: 'Scanning...'
+    });
+  };
+  $scope.hide = function(){
+    $ionicLoading.hide();
+  };
+})
+
+.controller('DetailCtrl', function($scope) {})

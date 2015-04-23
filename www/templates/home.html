@@ -1,0 +1,22 @@
+<ion-view view-title="Follow Me">
+<body ng-controller = "bluetoothController as bluetooth">
+    <ion-content >
+	
+        <div class="button-bar">
+            <a class="button button-medium button-light" ng-click="bluetooth.clear()" align-text="center">Clear</a>
+            <a class="button button-medium button-light" ng-click="bluetooth.startup()" align-text="center">{{bluetooth.scanStatus}}</a>
+            <a class="button button-medium button-light" ng-click="bluetooth.stop()" align-text="center">Stop</a>
+        </div>
+
+	   <ion-list id='list'> 
+            <ion-item 
+                      ng-repeat="beacon in bluetooth.beacons" 
+                      on-swipe-left="bluetooth.openModal(beacon)"
+                      ng-click="bluetooth.openModal(beacon)"
+                      >
+                <p>{{beacon.type}}</p>
+            </ion-item>        
+        </ion-list> 
+    </ion-content>
+</body>
+</ion-view>

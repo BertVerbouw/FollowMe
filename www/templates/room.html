@@ -1,0 +1,38 @@
+<ion-view title="room configuration">
+
+    <body ng-controller="roomController as room">
+        <ion-content>
+            <ion-list>
+                Lights
+                <ion-item ng-repeat="light in room.lights" class="item item-toggle">
+                    {{light.name}}
+                    <label class="toggle toggle-positive">
+                        <input type="checkbox" ng-checked="light.status">
+                        <div class="track">
+                            <div class="handle"></div>
+                        </div>
+                    </label>
+                </ion-item>
+            </ion-list>
+            <ion-list>
+                Audio
+                <ion-item ng-repeat="radio in room.radios" class="item item-toggle">
+                    {{radio.name}}
+                    <label class="toggle toggle-positive">
+                        <input type="checkbox" ng-checked="radio.status">
+                        <div class="track">
+                            <div class="handle"></div>
+                        </div>
+                    </label>
+                    <div class="range">
+                        <button class="button button-clear" ng-click="room.changeVolume('-5')">
+                            <i class="icon ion-volume-low"></i>
+                        </button>
+                        <input type="range" name="volume" min="0" max="100" value={{radio.volume}}>
+                        <i class="icon ion-volume-high" ng-click="room.changeVolume('5')"></i>
+                    </div>
+                </ion-item>
+            </ion-list>
+        </ion-content>
+    </body>
+</ion-view>

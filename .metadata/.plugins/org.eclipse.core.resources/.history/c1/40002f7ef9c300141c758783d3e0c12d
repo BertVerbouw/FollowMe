@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+    <!-- your app's js -->
+    <script src="js/app.js"></script>
+    <script src="js/controllers.js"></script>
+    <script src="js/services.js"></script>
+    
+  </head>
+  
+  <body ng-app="starter">
+    <ion-header-bar align-title="center" class="bar-stable">
+  
+</ion-header-bar>
+
+<div class="bar bar-header">
+  <button class= "button" onclick="scan()">Scan</button> 
+  <h1 class="title">List of devices</h1>
+  <button class= "button" onclick="clear()">Clear</button> 
+</div>
+ <ion-content> 
+<!--    <ul class="list" id="list"> -->
+      
+<!--    </ul> -->
+   <ion-list id='list'>
+   
+   </ion-list>
+</ion-content>
+<script>
+function scan(){
+	console.log('scanning...');
+// 	ble.scan([], 1, function(device) {
+// 	    showDevices(device);
+// 	}, console.log('fail'));
+	showDevices('{test}');
+}
+
+function clear(){
+	console.log('clearing...');
+	var elem = document.getElementById('list');
+	elem.parentNode.removeChild(elem);	
+}
+
+function showDevices(device){
+	 var node = document.createElement("ion-item");                 // Create a <li> node
+	 var textnode = document.createTextNode(JSON.stringify(device));         // Create a text node
+	 node.appendChild(textnode);				// Append the text to <li>
+	 node.setAttribute("class", "item");
+	 document.getElementById("list").appendChild(node);     // Append <li> to <ul> with id="list"	
+}
+
+</script>
+
+  </body>
+</html>

@@ -1,0 +1,5 @@
+angular.module('starter.controllers', [])
+
+.controller('ScanCtrl', function($scope) {})
+
+.controller('SendCtrl', function($scope) {})

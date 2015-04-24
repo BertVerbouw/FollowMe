@@ -33,6 +33,25 @@
                     </div>
                 </ion-item>
             </ion-list>
+            <ion-list>
+                Heating
+                <ion-item ng-repeat="heating in room.heating" class="item item-toggle">
+                    {{heating.name}}
+                    <label class="toggle toggle-positive">
+                        <input type="checkbox" ng-checked="heating.status">
+                        <div class="track">
+                            <div class="handle"></div>
+                        </div>
+                    </label>
+                    <div class="range">
+                        <button class="button button-clear">
+                            <i class="icon ion-volume-low"></i>
+                        </button>
+                        <input type="range" name="volume" min="0" max="100" value={{heating.temp}}>
+                        <i class="icon ion-volume-high"></i>
+                    </div>
+                </ion-item>
+            </ion-list>
         </ion-content>
     </body>
 </ion-view>

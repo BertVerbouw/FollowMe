@@ -21,3 +21,20 @@ angular.module('starter.services', [])
         }
     }
   })
+.service('sharedRoom', function(){
+    var sharedRoom = {};
+    var setRoom = function($room)
+    {
+        sharedRoom = $room;
+    }
+    var getRoom = function(){
+        return sharedRoom;
+    }
+    return {
+        setRoom: setRoom,
+        getRoom: getRoom,
+        room: function(){
+            return sharedRoom;
+        }
+    }
+})

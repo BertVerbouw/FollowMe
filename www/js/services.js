@@ -1,6 +1,5 @@
 angular.module('starter.services', [])
 
-
 //Service to share items between controllers.
 .service('sharedBeacon', function ($rootScope) {
         var sharedBeacon = {};

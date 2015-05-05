@@ -1,9 +1,10 @@
-<ion-view title="room configuration">
-
+<ion-view title="room">
     <body ng-controller="roomController as room">
-        <ion-content>
+        <ion-content ng-init="room.getData()">
             <ion-list>
+                <div class="item item-divider">
                 Lights
+                </div>
                 <ion-item ng-repeat="light in room.lights" class="item item-toggle">
                     {{light.name}}
                     <label class="toggle toggle-positive">
@@ -15,7 +16,9 @@
                 </ion-item>
             </ion-list>
             <ion-list>
+                <div class="item item-divider">
                 Audio
+                </div>
                 <ion-item ng-repeat="radio in room.radios" class="item item-toggle">
                     {{radio.name}}
                     <label class="toggle toggle-positive">
@@ -34,7 +37,9 @@
                 </ion-item>
             </ion-list>
             <ion-list>
+                <div class="item item-divider">
                 Heating
+                </div>
                 <ion-item ng-repeat="heating in room.heating" class="item item-toggle">
                     {{heating.name}}
                     <label class="toggle toggle-positive">

@@ -1,22 +1,24 @@
 <ion-view view-title="Follow Me">
-<body ng-controller = "bluetoothController as bluetooth">
-    <ion-content >
-	
-        <div class="button-bar">
-            <a class="button button-medium button-light" ng-click="bluetooth.clear()" align-text="center">Clear</a>
-            <a class="button button-medium button-light" ng-click="bluetooth.startup()" align-text="center">{{bluetooth.scanStatus}}</a>
-            <a class="button button-medium button-light" ng-click="bluetooth.stop()" align-text="center">Stop</a>
-        </div>
 
-	   <ion-list id='list'> 
-            <ion-item 
-                      ng-repeat="beacon in bluetooth.beacons" 
-                      on-swipe-left="bluetooth.openModal(beacon)"
-                      ng-click="bluetooth.openModal(beacon)"
-                      >
-                <p>{{beacon.type}}</p>
-            </ion-item>        
-        </ion-list> 
-    </ion-content>
-</body>
+    <body ng-controller="bluetoothController as bluetooth">
+        <ion-content ng-controller="homeController as home">
+            <ion-list id='list'>
+                <ion-item ng-click="bluetooth.startup()">{{home.status}}</ion-item>
+                <div class="item item-divider">
+                    All rooms
+                </div>
+                <ion-item ng-repeat="room in home.rooms" on-swipe-left="bluetooth.goToRoom(room.id)" ng-click="bluetooth.goToRoom(room.id)">
+                    <p>{{room.name}}</p>
+                </ion-item>
+            </ion-list>
+            <ion-list id='list'>
+                <div class="item item-divider">
+                    Beacons in range
+                </div>
+                <ion-item ng-repeat="beacon in home.beacons">
+                    <p>{{beacon.type}}: {{beacon.uuid}}</p>
+                </ion-item>
+            </ion-list>
+        </ion-content>
+    </body>
 </ion-view>

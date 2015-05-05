@@ -2,39 +2,69 @@ angular.module('starter.services', [])
 
 
 //Service to share items between controllers.
- .service('sharedBeacon', function() {
-    var sharedBeacon = {};
-    var setBeacon = function($beacon)
-    {
-        sharedBeacon = $beacon;
-    }
-    var getBeacon = function()
-    {
-        return sharedBeacon;    
-    }
-    
-    return {
-        setBeacon: setBeacon,
-        getBeacon: getBeacon,
-        beacon : function () {
+.service('sharedBeacon', function ($rootScope) {
+        var sharedBeacon = {};
+        var status = "Scan";
+        var setBeacon = function ($beacon) {
+            sharedBeacon = $beacon;
+            $rootScope.$broadcast("valuesUpdated");
+        }
+        var changeStatus = function () {
+            if (status === "Scan") {
+                status = "Scanning...";
+            } else {
+                status = "Scan";
+            }
+            $rootScope.$broadcast("statusUpdated");
+        }
+        var getBeacon = function () {
             return sharedBeacon;
         }
-    }
-  })
-.service('sharedRoom', function(){
-    var sharedRoom = {};
-    var setRoom = function($room)
-    {
-        sharedRoom = $room;
-    }
-    var getRoom = function(){
-        return sharedRoom;
-    }
-    return {
-        setRoom: setRoom,
-        getRoom: getRoom,
-        room: function(){
-            return sharedRoom;
+        var getStatus = function () {
+            return status;
         }
-    }
-})
+
+        return {
+            setBeacon: setBeacon,
+            changeStatus: changeStatus,
+            getBeacon: getBeacon,
+            getStatus: getStatus,
+            beacon: function () {
+                return sharedBeacon;
+            },
+            status: function () {
+                return status;
+            }
+        }
+    })
+    .service('sharedRoomData', function ($rootScope) {
+        var sharedRoomsData = {};
+        var setRooms = function ($rooms) {
+            sharedRoomsData = $rooms;
+            $rootScope.$broadcast("valuesUpdated");
+        }
+        var getRooms = function () {
+            return sharedRoomsData;
+        }
+
+        var sharedRoomData = {};
+        var setRoom = function ($room) {
+            sharedRoomData = $room;
+        }
+        var getRoom = function () {
+            return sharedRoomData;
+        }
+
+        return {
+            setRooms: setRooms,
+            setRoom: setRoom,
+            getRooms: getRooms,
+            getRoom: getRoom,
+            roomsData: function () {
+                return sharedRoomsData;
+            },
+            roomData: function () {
+                return sharedRoomData;
+            }
+        }
+    })

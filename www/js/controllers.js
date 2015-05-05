@@ -2,9 +2,9 @@ angular.module('starter.controllers', [])
 
 
 //Controller to handle the main page of the app and all the bluetooth connenction functions. 
-.controller('bluetoothController', ['$scope', '$ionicModal', 'sharedBeacon','sharedRoom', function ($scope, $ionicModal, sharedBeacon, sharedRoom) {
+.controller('bluetoothController', ['$scope', '$timeout', '$state', '$ionicSideMenuDelegate', 'sharedBeacon', 'sharedRoomData', function ($scope, $timeout, $state, $ionicSideMenuDelegate, sharedBeacon, sharedRoomData) {
 
-    $ionicModal.fromTemplateUrl('templates/detail.html', {
+    /*$ionicModal.fromTemplateUrl('templates/detail.html', {
         scope: $scope,
         animation: 'slide-in-left'
     })
@@ -30,7 +30,10 @@ angular.module('starter.controllers', [])
     // Execute action on remove modal
     $scope.$on('modal.removed', function () {
         // Execute action
-    });
+    });*/
+
+    this.ionicSideMenuDelegate = $ionicSideMenuDelegate;
+
     //These are the regions the app will look for.
     this.regions = [{
         uuid: 'EE5EE5F1-DFFB-48D2-B060-D0F5A71096E0'
@@ -44,19 +47,15 @@ angular.module('starter.controllers', [])
         uuid: '11122334-4556-6778-899A-ABBCCDDEEFF1'
  }];
     //Object in which all detected beacons will be stored.
-    this.beacons = {};
+    this.beacons = sharedBeacon.getBeacon();
     //TimeStamp
     this.timeStart = Date.now();
 
     var bt = this;
 
-    this.set = false;
+    this.set = true;
     this.setRooms = 0;
     this.maxRooms = 0;
-
-    this.scanStatus = "Scan";
-
-    this.numberOfRooms = 0;
 
     this.numberOfLights = 0;
 
@@ -64,66 +63,56 @@ angular.module('starter.controllers', [])
 
     this.numberOfHeating = 0;
 
-    this.rooms = {};
-    
-    this.goToRoom = function($id){
-        
-    }
-    
-    this.log = function(){
-        console.log(bt.rooms);
+    this.rooms = sharedRoomData.getRooms();
+
+    this.numberOfRooms = Object.keys(bt.rooms).length;
+
+    this.setRoom = function ($id) {
+        sharedRoomData.setRoom(bt.rooms[$id]);
     }
 
     this.saveRoom = function ($id) {
         if (bt.rooms[$id].saveButton === 'Save Room') {
-            if (bt.rooms[$id].saved == false) {
-                bt.setRooms++;
-            }
             bt.rooms[$id].saveButton = 'Edit Room'
         } else {
             bt.rooms[$id].saveButton = 'Save Room'
         }
     };
-    
-    this.saveAllRooms = function(){
-        bt.set=true;
-        var amountofrooms = Object.keys(bt.rooms).length;
-        for(var i=0; i<amountofrooms; i++)
-        {
-            if(bt.rooms[i].name === '')
-            {
+
+    this.saveAllRooms = function () {
+        bt.set = true;
+        for (var i = 1; i < Object.keys(bt.rooms).length + 1; i++) {
+            bt.saveRoom(i);
+            if (bt.rooms[i].name === '' || bt.rooms[i].beacon === '') {
                 delete bt.rooms[i];
                 bt.numberOfRooms--;
             }
         }
+        sharedRoomData.setRooms(bt.rooms);
+        $state.go('home');
     };
 
     this.initRooms = function () {
-        if (bt.numberOfRooms < 0) {} else {
-            if (bt.numberOfRooms > bt.maxRooms) {
-                bt.maxRooms = bt.numberOfRooms;
-            } else {
-                for (var i = bt.numberOfRooms; i < bt.maxRooms; i++) {
-                    delete bt.rooms[i];
-                    if (i < bt.setRooms) {
-                        bt.setRooms--;
-                    }
-                }
-            }
-            for (var i = (0 + bt.setRooms); i < bt.numberOfRooms; i++) {
-                bt.rooms[i] = {
-                    'id': i,
-                    'name': '',
-                    'lights': {},
-                    'audio': {},
-                    'heating': {}, 
-                    'saved': false,
-                    'saveButton': 'Save Room',
-                    'beacon':''
-                };
-            }
+        var length = Object.keys(bt.rooms).length;
+        if (bt.numberOfRooms < length) {
+            delete bt.rooms[length];
+        } else if (bt.numberOfRooms > length) {
+            bt.rooms[length + 1] = {
+                'id': length + 1,
+                'name': '',
+                'lights': {},
+                'audio': {},
+                'heating': {},
+                'saveButton': 'Save Room',
+                'beacon': 'mdsqfuih'
+            };
         }
-    };
+        if (bt.numberOfRooms !== Object.keys(bt.rooms).length) {
+            bt.initRooms();
+            console.log("not equal!");
+        }
+
+    }
 
     this.initLights = function ($id) {
         var lights = {};
@@ -160,7 +149,6 @@ angular.module('starter.controllers', [])
         ble.isEnabled(
             function () {
                 $scope.scanIBeacons();
-                $scope.addFake();
             },
             function () {
                 alert("please enable Bluetooth.");
@@ -168,20 +156,10 @@ angular.module('starter.controllers', [])
         );
     };
 
-    $scope.addFake = function () {
-        $scope.setBeacons('sqmlskjdf', {
-            'type': 'test',
-            'major': '3',
-            'minor': '205',
-            'id': '3',
-            'uuid':'mjsqfdifjmh' 
-        });
-    }
-
     this.stop = function () {
-        this.scanStatus = "Scan"
-        for (var i in this.regions) {
-            var uuid = this.regions[i].uuid;
+        sharedBeacon.changeStatus();
+        for (var i in bt.regions) {
+            var uuid = bt.regions[i].uuid;
             var identifier = i + '1';
             var beaconRegion = new cordova.plugins.locationManager.BeaconRegion(
                 identifier, uuid);
@@ -190,23 +168,29 @@ angular.module('starter.controllers', [])
                 .fail(console.error)
                 .done(console.log("stopped monitoring: id=" + identifier));
         }
+        $scope.clear();
+        $timeout(function () {
+            $scope.clear()
+        }, 500);
+        $timeout(function () {
+            $scope.clear()
+        }, 500);
     };
 
-    this.clear = function () {
-        this.beacons = {};
+    $scope.clear = function () {
+        sharedBeacon.setBeacon({});
+        bt.beacons = sharedBeacon.getBeacon();
     };
-    $scope.beacons = {};
-
 
     $scope.setBeacons = function (key, beacon) {
-        this.beacons[key] = beacon;
-        bt.beacons = this.beacons;
+        var tempbeacons = sharedBeacon.getBeacon();
+        tempbeacons[key] = beacon;
+        sharedBeacon.setBeacon(tempbeacons);
         $scope.$apply();
     };
 
     $scope.scanIBeacons = function () {
-        this.scanStatus = "Scanning...";
-
+        sharedBeacon.changeStatus();
         var delegate = new cordova.plugins.locationManager.Delegate(); //This object holds the iBeacon callback functions.
         delegate.didRangeBeaconsInRegion = function ($pluginResult) //Continuously called when ranging
             {
@@ -226,11 +210,27 @@ angular.module('starter.controllers', [])
             }
         delegate.didDetermineStateForRegion = function ($pluginResult) //Called when the state of a region changes during monitoring
             {
-                console.log("state changed: " + JSON.stringify($pluginResult));
+                for (var i in $pluginResult.beacons) {
+                    //Insert beacon into table of found beacons.
+                    var beacon = $pluginResult.beacons[i];
+                    beacon.timeStamp = Date.now();
+                    beacon.type = $scope.checkType(beacon.major).type;
+                    beacon.id = $scope.checkType(beacon.major).id;
+                    var key = beacon.uuid;
+                    $scope.setBeacons(key, beacon);
+                }
             }
         delegate.didEnterRegion = function ($pluginResult) //Called when the user enters the region
             {
-                console.log("entered region: " + JSON.stringify($pluginResult));
+                for (var i in $pluginResult.beacons) {
+                    //Insert beacon into table of found beacons.
+                    var beacon = $pluginResult.beacons[i];
+                    beacon.timeStamp = Date.now();
+                    beacon.type = $scope.checkType(beacon.major).type;
+                    beacon.id = $scope.checkType(beacon.major).id;
+                    var key = beacon.uuid;
+                    $scope.setBeacons(key, beacon);
+                }
             }
         delegate.didExitRegion = function ($pluginResult) //Called when the user exits the region
             {
@@ -239,21 +239,20 @@ angular.module('starter.controllers', [])
         cordova.plugins.locationManager.setDelegate(delegate); //Set the delegate to be used
         cordova.plugins.locationManager.requestAlwaysAuthorization(); //Ask for permission (iOS8)
 
-        for (var i in this.regions) //For every region defined, start monitoring and ranging
+        for (var i in bt.regions) //For every region defined, start monitoring and ranging
         {
-
             var beaconRegion = new cordova.plugins.locationManager.BeaconRegion( //make a new BeaconRegion
                 i + 1, //identifier
-                this.regions[i].uuid); //uuid
+                bt.regions[i].uuid); //uuid
             cordova.plugins.locationManager.startMonitoringForRegion(
                     beaconRegion) //start Monitoring for region
                 .fail(console.error)
-                .done(console.log("started monitoring for: id=" + (i + 1) + ": uuid=" + this.regions[i].uuid));
+                .done(console.log("started monitoring for: id=" + (i + 1) + ": uuid=" + bt.regions[i].uuid));
 
             cordova.plugins.locationManager.startRangingBeaconsInRegion(
                     beaconRegion) //start Ranging for region
                 .fail(console.error)
-                .done(console.log("started ranging for: id=" + (i + 1) + ": uuid=" + this.regions[i].uuid));
+                .done(console.log("started ranging for: id=" + (i + 1) + ": uuid=" + bt.regions[i].uuid));
         }
     };
 
@@ -280,103 +279,88 @@ angular.module('starter.controllers', [])
         }
         return type;
     };
-
 }])
 
-//Controller that holds all information to load the detailed page. All database calls and socket.io functions will be done here.
-.controller('detailController', ['$scope', '$state', '$location', 'sharedBeacon', function ($scope, $state, $location, sharedBeacon) {
-    this.beacon = function () {
-        return sharedBeacon.beacon();
-    };
-    this.goToRoom = function () {
-        var beacon = sharedBeacon.beacon();
-        console.log("id:" + beacon.id);
-        $state.go('room');
-    };
-    //Send necessary info to the raspberry Pi
-    this.sendToRPi = function () {
-        var beacon = sharedBeacon.beacon();
-        console.log(beacon.type);
-        var desiredTemp = 22; //get from database!
+.controller("roomController", function ($scope, $cordovaSQLite, $timeout, sharedRoomData) {
 
-        if (beacon.minor != desiredTemp) {
-            console.log("request temperature change: desired temperature: " + desiredTemp + " | current temperature: " + beacon.minor);
-        } else {
-            console.log('temperature OK')
-        }
-
-        var socket = io('http://localhost');
-        socket.on('news', function (data) {
-            console.log(data);
-            socket.emit('my other event', {
-                my: 'data'
-            });
-        });
-    };
-
-
-}])
-
-.controller("roomController", function ($scope, $cordovaSQLite, $timeout, sharedRoom) {
-
-    this.room = function(){
-        return sharedRoom.room();
-    }
-
-    function getState() {
-        console.log("GETSTATE FUNCTION");
-        $cordovaSQLite.execute(db, "SELECT state FROM elements WHERE elemid=1 AND room=1 AND type=1").then(function (res) {
-            if (res.rows.length > 0) {
-                console.log("SELECTED STATE LIGHT ROOM 1> " + res.rows.item(0).state);
-
-                $timeout(function () {
-                    if (res.rows.item(0).state === "true") {
-                        $scope.checkboxModel.value1 = true;
-                    } else {
-                        $scope.checkboxModel.value1 = false;
-                    }
-                }, 10);
-            } else {
-                console.log("No results found");
-                $timeout(function () {
-                    $scope.checkboxModel.value1 = 'false';
-                }, 10);
+        this.getData = function () {
+                this.room = sharedRoomData.getRoom();
+                console.log(this.room);
             }
-        }, function (err) {
+            /*function getState() {
+                console.log("GETSTATE FUNCTION");
+                $cordovaSQLite.execute(db, "SELECT state FROM elements WHERE elemid=1 AND room=1 AND type=1").then(function (res) {
+                    if (res.rows.length > 0) {
+                        console.log("SELECTED STATE LIGHT ROOM 1> " + res.rows.item(0).state);
 
-            console.error(err);
+                        $timeout(function () {
+                            if (res.rows.item(0).state === "true") {
+                                $scope.checkboxModel.value1 = true;
+                            } else {
+                                $scope.checkboxModel.value1 = false;
+                            }
+                        }, 10);
+                    } else {
+                        console.log("No results found");
+                        $timeout(function () {
+                            $scope.checkboxModel.value1 = 'false';
+                        }, 10);
+                    }
+                }, function (err) {
+
+                    console.error(err);
+                });
+
+            };
+
+            $scope.$on('$ionicView.beforeEnter', function () {
+
+                console.log("SCOPE.ON ");
+                getState();
+            });
+
+
+            $scope.changeState = function () {
+                console.log("CHANGESTATE " + $scope.checkboxModel.value1);
+
+                if ($scope.checkboxModel.value1 == true) {
+                    $scope.value3 = "on";
+                    $cordovaSQLite.execute(db, "UPDATE elements SET state='true' WHERE elemid=1").then(function () {
+                        console.log("UPDATE elements");
+                    }, function (err) {
+                        console.error(err);
+                    });
+                } else if ($scope.checkboxModel.value1 == false) {
+                    $scope.value3 = "off";
+                    $cordovaSQLite.execute(db, "UPDATE elements SET state='false' WHERE elemid=1").then(function () {
+                        console.log("UPDATE elements");
+                    }, function (err) {
+                        console.error(err);
+                    });
+                } else {
+                    console.log("NO CHANGE ");
+
+                }
+
+            };*/
+    })
+    .controller("homeController", function ($scope, sharedBeacon, sharedRoomData) {
+
+        var home = this;
+        this.rooms = sharedRoomData.getRooms();
+        this.beacons = sharedBeacon.getBeacon();
+        this.status = sharedBeacon.getStatus();
+
+        $scope.$on('valuesUpdated', function () {
+            home.rooms = sharedRoomData.getRooms();
+            home.beacons = sharedBeacon.getBeacon();
         });
-
-    };
-
-    $scope.$on('$ionicView.beforeEnter', function () {
-
-        console.log("SCOPE.ON ");
-        getState();
-    });
-
-
-    $scope.changeState = function () {
-        console.log("CHANGESTATE " + $scope.checkboxModel.value1);
-
-        if ($scope.checkboxModel.value1 == true) {
-            $scope.value3 = "on";
-            $cordovaSQLite.execute(db, "UPDATE elements SET state='true' WHERE elemid=1").then(function () {
-                console.log("UPDATE elements");
-            }, function (err) {
-                console.error(err);
-            });
-        } else if ($scope.checkboxModel.value1 == false) {
-            $scope.value3 = "off";
-            $cordovaSQLite.execute(db, "UPDATE elements SET state='false' WHERE elemid=1").then(function () {
-                console.log("UPDATE elements");
-            }, function (err) {
-                console.error(err);
-            });
-        } else {
-            console.log("NO CHANGE ");
-
+    
+        $scope.$on('statusUpdated', function () {
+            home.status = sharedBeacon.getStatus();
+            if(home.status === "Scanning...")
+               {
+            $scope.$apply();
         }
-
-    };
-})
+        });
+    })

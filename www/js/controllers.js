@@ -70,7 +70,6 @@ angular.module('starter.controllers', [])
     Stops scanning and clears the list of beacons.
     */
     this.stop = function () {
-        sharedBeacon.changeStatus();
         for (var i in bt.regions) {
             var uuid = bt.regions[i].uuid;
             var identifier = i + '1';
@@ -107,7 +106,6 @@ angular.module('starter.controllers', [])
     Ble plugin functions
     */
     $scope.scanIBeacons = function () {
-        sharedBeacon.changeStatus();
         var delegate = new cordova.plugins.locationManager.Delegate(); //This object holds the iBeacon callback functions.
         delegate.didRangeBeaconsInRegion = function ($pluginResult) //Continuously called when ranging
             {

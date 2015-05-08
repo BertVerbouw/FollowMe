@@ -8,14 +8,6 @@ angular.module('starter.services', [])
             sharedBeacon = $beacon;
             $rootScope.$broadcast("valuesUpdated");
         }
-        var changeStatus = function () {
-            if (status === "Scan") {
-                status = "Scanning...";
-            } else {
-                status = "Scan";
-            }
-            $rootScope.$broadcast("statusUpdated");
-        }
         var getBeacon = function () {
             return sharedBeacon;
         }
@@ -25,7 +17,6 @@ angular.module('starter.services', [])
 
         return {
             setBeacon: setBeacon,
-            changeStatus: changeStatus,
             getBeacon: getBeacon,
             getStatus: getStatus,
             beacon: function () {
@@ -46,9 +37,7 @@ angular.module('starter.services', [])
             return sharedRoomsData;
         }
 
-        var sharedRoomData = {
-            'beacon': 'sdf'
-        };
+        var sharedRoomData = {};
         var setRoom = function ($room) {
             sharedRoomData = $room;
             $rootScope.$broadcast("roomUpdated");

@@ -13,7 +13,7 @@
         </ion-nav-buttons>
         <ion-content>
             <div class="item item-divider">
-                Beacon UUID: {{room.beacon}}
+                Beacon UUID: {{room.room.beacon}}
             </div>
             <div class="item item-divider">
                 Lights
@@ -32,10 +32,10 @@
                 <div class="item item-divider">
                     Audio
                 </div>
-                <ion-item ng-repeat="radio in room.room.radios" class="item item-toggle">
-                    {{radio.name}}
+                <ion-item ng-repeat="audio in room.room.audio" class="item item-toggle">
+                    {{audio.name}}
                     <label class="toggle toggle-positive">
-                        <input type="checkbox" ng-checked="radio.state">
+                        <input type="checkbox" ng-checked="audio.state">
                         <div class="track">
                             <div class="handle"></div>
                         </div>

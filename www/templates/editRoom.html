@@ -1,4 +1,4 @@
-<ion-view title="Edit room" ng-controller="roomController as room">
+<ion-view title="Edit room" ng-controller="editRoomController as room">
     <ion-nav-buttons side="left">
         <button class="button button-clear button-icon icon ion-android-arrow-back" ng-click="$state.go('home')">
         </button>
@@ -19,8 +19,8 @@
                 <label class="input-label">
                     Select beacon
                 </label>
-                <select ng-model="room.beacon" ng-options="beacon.uuid for beacon in bluetooth.beacons" ng-required>
-                    <option value=""></option>
+                <select ng-model="room.beacon" ng-repeat="beacon in bluetooth.beacons" ng-required>
+                    <option>{{beacon.uuid}}</option>
                 </select>
             </label>
 

@@ -5,7 +5,6 @@
             <button id="menu-popover" class="button button-icon button-clear ion-android-more-vertical" ng-click="bluetooth.openPopover($event)"></button>
         </ion-nav-buttons>
         <ion-content ng-controller="homeController as home">
-            <ion-item text-align="center">{{home.status}}</ion-item>
             <ion-list id='list'>
                 <div class="item item-divider">
                     All rooms
@@ -18,7 +17,7 @@
                 <div class="item item-divider">
                     Beacons in range
                 </div>
-                <ion-item ng-repeat="beacon in home.beacons">
+                <ion-item ng-repeat="beacon in home.beacons" ng-if="beacon!==undefined">
                     <p>{{beacon.type}}: {{beacon.uuid}}</p>
                     <p>Temperature: {{beacon.temp}}</p>
                 </ion-item>

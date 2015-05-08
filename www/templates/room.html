@@ -6,10 +6,15 @@
             </button>
         </ion-nav-buttons>
         <ion-nav-buttons side="right">
-            <button class="button button-clear button-icon icon ion-android-create" ng-click="$state.go('editRoom')">
+            <button class="button button-clear button-icon icon ion-android-delete" ng-click="room.remove(room.room.id)">
+            </button>
+            <button class="button button-clear button-icon icon ion-android-create" ng-click="room.goToEdit(room.room.id)">
             </button>
         </ion-nav-buttons>
         <ion-content>
+            <div class="item item-divider">
+                Beacon UUID: {{room.beacon}}
+            </div>
             <div class="item item-divider">
                 Lights
             </div>

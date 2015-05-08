@@ -1,3 +1,9 @@
+document.addEventListener("deviceready", readyFunct, false);
+
+function readyFunct() {
+    angular.bootstrap(document, ['starter']);
+}
+
 // Ionic Starter App
 
 // angular.module is a global place for creating, registering and retrieving Angular modules
@@ -20,8 +26,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             StatusBar.styleDefault();
         };
 
+
+
         $rootScope.$state = $state;
     });
+
 })
 
 .config(function ($stateProvider, $urlRouterProvider) {
@@ -52,7 +61,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
         views: {
             'menuContent': {
                 templateUrl: "templates/editRoom.html",
-                controller: 'bluetoothController as bluetooth'
+                controller: 'editRoomController as room'
             }
         }
     })

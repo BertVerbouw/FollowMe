@@ -46,9 +46,12 @@ angular.module('starter.services', [])
             return sharedRoomsData;
         }
 
-        var sharedRoomData = {};
+        var sharedRoomData = {
+            'beacon': 'sdf'
+        };
         var setRoom = function ($room) {
             sharedRoomData = $room;
+            $rootScope.$broadcast("roomUpdated");
         }
         var getRoom = function () {
             return sharedRoomData;

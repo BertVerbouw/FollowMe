@@ -1,0 +1,70 @@
+<ion-view title="Edit room" ng-controller="roomController as room">
+    <ion-nav-buttons side="left">
+        <button class="button button-clear button-icon icon ion-android-arrow-back" ng-click="$state.go('home')">
+        </button>
+    </ion-nav-buttons>
+    <ion-nav-buttons side="right">
+        <button class="button button-clear button-icon icon ion-android-done" ng-click="room.saveRoom()">
+        </button>
+    </ion-nav-buttons>
+    <ion-content>
+        <div class="list">
+            <label class="item item-input item-floating-label">
+
+                <span class="input-label"></span>
+                <input type="text" placeholder="name of the room" ng-model="room.room.name"></input>
+
+            </label>
+            <label class="item item-input item-select" ng-controller="bluetoothController as bluetooth">
+                <label class="input-label">
+                    Select beacon
+                </label>
+                <select ng-model="room.beacon" ng-options="beacon.uuid for beacon in bluetooth.beacons" ng-required>
+                    <option value=""></option>
+                </select>
+            </label>
+
+
+            <div class="item item-divider">
+                How many lights are in the {{room.room.name}}?
+                <label class="item item-input">
+                    <input type="number" min="0" placeholder="Amount of lights" ng-model="room.numberOfLights" ng-change="room.initLights()">
+                </label>
+            </div>
+            <div class="item item-input" ng-repeat="light in room.room.lights">
+                <label class="item-input">
+                    <input type="text" placeholder="name of the light" ng-model="light.name">
+
+                </label>
+            </div>
+
+
+            <div class="item item-divider">
+                How many audio devices are in the {{room.room.name}}?
+                <label class="item item-input">
+                    <input type="number" min="0" placeholder="Amount of audio devices" ng-model="room.numberOfAudio" ng-change="room.initAudio()">
+                </label>
+            </div>
+            <div class="item item-input" ng-repeat="audio in room.room.audio">
+                <label class="item-input">
+                    <input type="text" placeholder="name of the audio device" ng-model="audio.name">
+                </label>
+            </div>
+
+            <div class="item item-divider">
+                How many heating devices are in the {{room.room.name}}?
+                <label class="item item-input">
+                    <input type="number" min="0" placeholder="Amount of heaters" ng-model="room.numberOfHeating" ng-change="room.initHeating()">
+                </label>
+            </div>
+            <div class="item item-input" ng-repeat="heating in room.room.heating">
+                <label class="item-input">
+                    <input type="text" placeholder="name of the heater" ng-model="heating.name">
+                </label>
+            </div>
+
+        </div>
+        </div>
+
+    </ion-content>
+</ion-view>

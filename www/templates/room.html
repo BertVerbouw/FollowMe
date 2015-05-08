@@ -1,60 +1,54 @@
-<ion-view title="room">
-    <body ng-controller="roomController as room">
-        <ion-content ng-init="room.getData()">
-            <ion-list>
-                <div class="item item-divider">
+<ion-view ng-controller="roomController as room" title="{{room.room.name}}">
+
+    <body>
+        <ion-nav-buttons side="left">
+            <button class="button button-clear button-icon icon ion-android-arrow-back" ng-click="$state.go('home')">
+            </button>
+        </ion-nav-buttons>
+        <ion-nav-buttons side="right">
+            <button class="button button-clear button-icon icon ion-android-create" ng-click="$state.go('editRoom')">
+            </button>
+        </ion-nav-buttons>
+        <ion-content>
+            <div class="item item-divider">
                 Lights
-                </div>
-                <ion-item ng-repeat="light in room.lights" class="item item-toggle">
-                    {{light.name}}
-                    <label class="toggle toggle-positive">
-                        <input type="checkbox" ng-checked="light.status">
-                        <div class="track">
-                            <div class="handle"></div>
-                        </div>
-                    </label>
-                </ion-item>
+            </div>
+            <ion-item ng-repeat="light in room.room.lights" class="item item-toggle">
+                {{light.name}}
+                <label class="toggle toggle-positive">
+                    <input type="checkbox" ng-checked="light.state">
+                    <div class="track">
+                        <div class="handle"></div>
+                    </div>
+                </label>
+            </ion-item>
             </ion-list>
             <ion-list>
                 <div class="item item-divider">
-                Audio
+                    Audio
                 </div>
-                <ion-item ng-repeat="radio in room.radios" class="item item-toggle">
+                <ion-item ng-repeat="radio in room.room.radios" class="item item-toggle">
                     {{radio.name}}
                     <label class="toggle toggle-positive">
-                        <input type="checkbox" ng-checked="radio.status">
+                        <input type="checkbox" ng-checked="radio.state">
                         <div class="track">
                             <div class="handle"></div>
                         </div>
                     </label>
-                    <div class="range">
-                        <button class="button button-clear" ng-click="room.changeVolume('-5')">
-                            <i class="icon ion-volume-low"></i>
-                        </button>
-                        <input type="range" name="volume" min="0" max="100" value={{radio.volume}}>
-                        <i class="icon ion-volume-high" ng-click="room.changeVolume('5')"></i>
-                    </div>
                 </ion-item>
             </ion-list>
             <ion-list>
                 <div class="item item-divider">
-                Heating
+                    Heating
                 </div>
-                <ion-item ng-repeat="heating in room.heating" class="item item-toggle">
+                <ion-item ng-repeat="heating in room.room.heating" class="item item-toggle">
                     {{heating.name}}
                     <label class="toggle toggle-positive">
-                        <input type="checkbox" ng-checked="heating.status">
+                        <input type="checkbox" ng-checked="heating.state">
                         <div class="track">
                             <div class="handle"></div>
                         </div>
                     </label>
-                    <div class="range">
-                        <button class="button button-clear">
-                            <i class="icon ion-volume-low"></i>
-                        </button>
-                        <input type="range" name="volume" min="0" max="100" value={{heating.temp}}>
-                        <i class="icon ion-volume-high"></i>
-                    </div>
                 </ion-item>
             </ion-list>
         </ion-content>

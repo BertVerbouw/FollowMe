@@ -1,14 +1,17 @@
 <ion-view view-title="Follow Me">
 
     <body ng-controller="bluetoothController as bluetooth">
+        <ion-nav-buttons side='right'>
+            <button id="menu-popover" class="button button-icon button-clear ion-android-more-vertical" ng-click="bluetooth.openPopover($event)"></button>
+        </ion-nav-buttons>
         <ion-content ng-controller="homeController as home">
+            <ion-item text-align="center">{{home.status}}</ion-item>
             <ion-list id='list'>
-                <ion-item ng-click="bluetooth.startup()">{{home.status}}</ion-item>
                 <div class="item item-divider">
                     All rooms
                 </div>
                 <ion-item ng-repeat="room in home.rooms" on-swipe-left="bluetooth.goToRoom(room.id)" ng-click="bluetooth.goToRoom(room.id)">
-                    <p>{{room.name}}</p>
+                    {{room.name}}:{{room.id}}
                 </ion-item>
             </ion-list>
             <ion-list id='list'>
@@ -17,8 +20,12 @@
                 </div>
                 <ion-item ng-repeat="beacon in home.beacons">
                     <p>{{beacon.type}}: {{beacon.uuid}}</p>
+                    <p>Temperature: {{beacon.temp}}</p>
                 </ion-item>
             </ion-list>
+
         </ion-content>
+        <button id="fab" class="button button-fab button-fab-bottom-right button-overlay" ng-click="$state.go('addRoom')"><i class=" icon ion-android-add "></i>
+        </button>
     </body>
 </ion-view>

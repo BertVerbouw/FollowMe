@@ -1,16 +1,41 @@
 /* Empty. Add your own CSS if you like */
+
 .slide-in-left {
-  -webkit-transform: translate3d(100%, 0, 0);
-  transform: translate3d(100%, 0, 0); }
+    -webkit-transform: translate3d(100%, 0, 0);
+    transform: translate3d(100%, 0, 0);
+}
 
-.slide-in-left.ng-enter, .slide-in-up > .ng-enter {
-  -webkit-transition: all cubic-bezier(0.1, 0.7, 0.1, 1) 400ms;
-  transition: all cubic-bezier(0.1, 0.7, 0.1, 1) 400ms; }
+.slide-in-left.ng-enter,
+.slide-in-up > .ng-enter {
+    -webkit-transition: all cubic-bezier(0.1, 0.7, 0.1, 1) 400ms;
+    transition: all cubic-bezier(0.1, 0.7, 0.1, 1) 400ms;
+}
 
-.slide-in-left.ng-enter-active, .slide-in-up > .ng-enter-active {
-  -webkit-transform: translate3d(0, 0, 0);
-  transform: translate3d(0, 0, 0); }
+.slide-in-left.ng-enter-active,
+.slide-in-up > .ng-enter-active {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0);
+}
 
-.slide-in-left.ng-leave, .slide-in-up > .ng-leave {
-  -webkit-transition: all ease-in-out 250ms;
-  transition: all ease-in-out 250ms; }
+.slide-in-left.ng-leave,
+.slide-in-up > .ng-leave {
+    -webkit-transition: all ease-in-out 250ms;
+    transition: all ease-in-out 250ms;
+}
+
+.bar.bar-positive {
+    background-color: #3f51b5;
+    border-color: #3f51b5;
+}
+
+.button-overlay {
+    background-color: #3f51b5;
+}
+
+.button-overlay:hover {
+    background-color: #303f9f;
+}
+
+.button-overlay i {
+    color: white;
+}

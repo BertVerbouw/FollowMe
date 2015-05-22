@@ -9,18 +9,21 @@
                 <div class="item item-divider">
                     All rooms
                 </div>
-                <ion-item ng-repeat="room in home.rooms" on-swipe-left="bluetooth.goToRoom(room.id)" ng-click="bluetooth.goToRoom(room.id)">
-                    {{room.name}}:{{room.id}}
-                </ion-item>
+                <ion-list>
+                    <ion-item ng-repeat="room in home.rooms" on-swipe-left="bluetooth.goToRoom(room.id)" ng-click="bluetooth.goToRoom(room.id)">
+                        {{room.name}}
+                    </ion-item>
+                </ion-list>
             </ion-list>
             <ion-list id='list'>
                 <div class="item item-divider">
                     Beacons in range
                 </div>
-                <ion-item ng-repeat="beacon in home.beacons" ng-if="beacon!==undefined">
-                    <p>{{beacon.type}}: {{beacon.uuid}}</p>
-                    <p>Temperature: {{beacon.temp}}</p>
-                </ion-item>
+                <ion-list class="animate-ripple">
+                    <ion-item ng-repeat="beacon in home.beacons" ng-if="beacon!==undefined">
+                        <p>{{beacon.type}}: {{beacon.rssi}}</p>
+                    </ion-item>
+                </ion-list>
             </ion-list>
 
         </ion-content>

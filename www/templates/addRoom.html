@@ -15,14 +15,21 @@
                 <input type="text" placeholder="name of the room" ng-model="room.newroom.name"></input>
 
             </label>
+            <label class="item item-input item-floating-label">
+
+                <span class="input-label"></span>
+                <input type="text" placeholder="ip-address of the R-Pi" ng-model="room.ip"></input>
+
+            </label>
             <label class="item item-input item-select" ng-controller="bluetoothController as bluetooth">
-                <label class="input-label">
+                <div class="input-label">
                     Select beacon
-                </label>
+                </div>
                 <select ng-model="room.newroom.beacon" ng-required>
-                    <option ng-repeat="beacon in bluetooth.beacons" ng-if="beacon.type==='nordic beacon'">{{beacon.uuid}}</option>
+                    <option ng-repeat="beacon in bluetooth.beacons">{{beacon.uuid}}</option>
                 </select>
             </label>
+
 
 
             <div class="item item-divider">

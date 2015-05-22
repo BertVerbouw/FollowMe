@@ -16,9 +16,10 @@
     "shelljs": "^0.3.0"
   },
   "cordovaPlugins": [
-    "com.megster.cordova.ble",
     "org.apache.cordova.statusbar",
-    "com.internrocket.plugins.statusbarcolor"
+    "com.internrocket.plugins.statusbarcolor",
+    "org.apache.cordova.splashscreen",
+    "com.megster.cordova.ble"
   ],
   "cordovaPlatforms": []
 }

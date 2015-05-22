@@ -2,7 +2,7 @@ angular.module('starter.controllers', [])
 
 
 //Controller to handle the main page of the app and all the bluetooth connenction functions. 
-.controller('bluetoothController', ['$scope', '$ionicPopover', '$timeout', '$state', '$ionicSideMenuDelegate', 'sharedBeacon', 'sharedRoomData', function ($scope, $ionicPopover, $timeout, $state, $ionicSideMenuDelegate, sharedBeacon, sharedRoomData) {
+.controller('bluetoothController', ['$scope', '$ionicPopover', '$timeout', '$state', '$ionicSideMenuDelegate', 'sharedBeacon', 'sharedRoomData', 'sharedClose', function ($scope, $ionicPopover, $timeout, $state, $ionicSideMenuDelegate, sharedBeacon, sharedRoomData, sharedClose) {
     ionic.material.ink.displayEffect();
 
     this.ionicSideMenuDelegate = $ionicSideMenuDelegate;
@@ -24,11 +24,9 @@ angular.module('starter.controllers', [])
 
     this.timeStart = Date.now();
 
-    this.closest;
+    this.closest = sharedClose.getClosest();
 
     var bt = this;
-
-    this.set = true;
 
     this.rooms = sharedRoomData.getRooms();
 
@@ -51,6 +49,18 @@ angular.module('starter.controllers', [])
         });
     }
 
+    this.btModal = function () {
+        ble.enable(
+            function () {
+                bt.btcheck();
+            },
+            function () {
+                bt.btModal();
+            }
+        );
+    }
+
+
     /*
     To be called at the start of the app. 
     Checks if bluetooth is on. If on, the app starts scanning.
@@ -61,7 +71,7 @@ angular.module('starter.controllers', [])
                 $scope.scanIBeacons();
             },
             function () {
-                alert("Please enable Bluetooth.");
+                bt.btModal();
             }
         );
     };
@@ -99,7 +109,7 @@ angular.module('starter.controllers', [])
         var tempbeacons = sharedBeacon.getBeacon();
         tempbeacons[key] = beacon;
         sharedBeacon.setBeacon(tempbeacons);
-        $scope.$apply();
+        ionic.material.motion.ripple();
     };
 
     /*
@@ -119,23 +129,16 @@ angular.module('starter.controllers', [])
                     var key = beacon.uuid;
                     $scope.setBeacons(key, beacon);
                     $scope.checkClosest();
-                    $scope.$apply();
-                    console.log(JSON.stringify(bt.beacons));
                 }
             }
-        delegate.didStartMonitoringForRegion = function ($pluginResult) //Called when starting to monitor a region
-            {}
-        delegate.didDetermineStateForRegion = function ($pluginResult) //Called when the state of a region changes during monitoring
-            {}
-        delegate.didEnterRegion = function ($pluginResult) //Called when the user enters the region
-            {}
         delegate.didExitRegion = function ($pluginResult) //Called when the user exits the region
             {
                 var uuid = $pluginResult.region.uuid;
                 console.log('deleted:' +
                     uuid);
                 bt.beacons[uuid] = undefined;
-                console.log(JSON.stringify(bt.beacons));
+                $scope.checkClosest();
+                ionic.material.motion.ripple();
                 sharedBeacon.setBeacon(bt.beacons);
             }
         cordova.plugins.locationManager.setDelegate(delegate); //Set the delegate to be used
@@ -190,16 +193,28 @@ angular.module('starter.controllers', [])
     };
 
     $scope.checkClosest = function () {
-        if (bt.beacons[0]) {
-            var beacon = bt.beacons[0];
-            for (var i = 0; i < Object.keys(bt.beacons).lenght; i++) {
-                if (bt.beacons[i].power > beacon.power) {
-                    beacon = bt.beacons[i];
+        var name;
+        var proxNear = [];
+        for (var i in bt.beacons) {
+            if (bt.beacons[i]) {
+                if (bt.beacons[i].proximity === "ProximityNear") {
+                    proxNear.push(bt.beacons[i]);
+                }
+            } else {
+                name = "No Beacons close";
+            }
+        }
+        if (proxNear) {
+            var power = -100;
+            for (var i in proxNear) {
+                if (proxNear[i].rssi > power) {
+                    power = proxNear[i].rssi;
+                    name = proxNear[i].type;
                 }
             }
-            bt.closest = beacon.uuid;
         }
-    }
+        sharedClose.setClosest(name);
+    };
 
     this.openPopover = function ($event) {
         $ionicPopover.fromTemplateUrl('templates/popover.html', {
@@ -210,19 +225,23 @@ angular.module('starter.controllers', [])
         });
     };
 
+    $scope.$on('closeUpdated', function () {
+        bt.closest = sharedClose.getClosest();
+    });
+
     $scope.$on('valuesUpdated', function () {
         bt.rooms = sharedRoomData.getRooms();
         bt.beacons = sharedBeacon.getBeacon();
     });
+
 }])
 
-.controller("roomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData) {
+.controller("roomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData, mySocket) {
     ionic.material.ink.displayEffect();
 
     var rm = this;
-    this.newroom = {
-        'beacon': 'dsdf'
-    };
+    this.ip;
+    this.newroom = {};
     this.rooms = sharedRoomData.getRooms();
     this.room = sharedRoomData.getRoom();
 
@@ -250,7 +269,8 @@ angular.module('starter.controllers', [])
         for (var i = 0; i < rm.numberOfLights; i++) {
             lights[i] = {
                 'name': '',
-                'state': ''
+                'state': '',
+                'id': i
             };
         }
         rm.newroom.lights = lights;
@@ -261,7 +281,8 @@ angular.module('starter.controllers', [])
         for (var i = 0; i < rm.numberOfAudio; i++) {
             audio[i] = {
                 'name': '',
-                'state': ''
+                'state': '',
+                'id': i
             };
         }
         rm.newroom.audio = audio;
@@ -272,23 +293,38 @@ angular.module('starter.controllers', [])
         for (var i = 0; i < rm.numberOfHeating; i++) {
             heat[i] = {
                 'name': '',
-                'state': ''
+                'state': '',
+                'id': i
             };
         }
         rm.newroom.heating = heat;
     }
 
     this.saveRoom = function () {
-        if (rm.newroom.name && rm.newroom.beacon) {
+        if (rm.newroom.name && rm.newroom.beacon && rm.ip) {
             var amount = Object.keys(rm.rooms).length;
             rm.newroom.id = amount + 1;
+            rm.newroom.ip = rm.ip;
             rm.rooms[amount + 1] = rm.newroom;
             sharedRoomData.setRooms(rm.rooms);
+            var socket = io.connect('http://' + rm.ip + ':3000');
+            socket.on('news', function (data) {
+                console.log(data);
+                socket.emit('room data', {
+                    save: rm.newroom
+                });
+            });
             $state.go('home');
-            rm.newroom = {};
         } else {
-            alert('please enter a name and a beacon for the room');
+            alert('please enter a name and a beacon for the room as well as an ip address for the Raspberry Pi');
         }
+    }
+
+    this.send = function ($data) {
+        var socket = io.connect('http://' + rm.room.ip + ':3000');
+        socket.emit('room change', {
+            change: $data
+        });
     }
 
     this.remove = function ($id) {
@@ -296,9 +332,10 @@ angular.module('starter.controllers', [])
         sharedRoomData.setRooms(rm.rooms);
         $state.go('home');
     }
+
 })
 
-.controller("editRoomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData) {
+.controller("editRoomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData, mySocket) {
     ionic.material.ink.displayEffect();
 
     var er = this;
@@ -331,7 +368,8 @@ angular.module('starter.controllers', [])
         for (var i = 0; i < er.numberOfLights; i++) {
             lights[i] = {
                 'name': '',
-                'state': ''
+                'state': '',
+                'id': i
             };
         }
         er.room.lights = lights;
@@ -341,7 +379,8 @@ angular.module('starter.controllers', [])
         for (var i = 0; i < er.numberOfAudio; i++) {
             audio[i] = {
                 'name': '',
-                'state': ''
+                'state': '',
+                'id': i
             };
         }
         er.room.audio = audio;
@@ -351,7 +390,8 @@ angular.module('starter.controllers', [])
         for (var i = 0; i < er.numberOfHeating; i++) {
             heat[i] = {
                 'name': '',
-                'state': ''
+                'state': '',
+                'id': i
             };
         }
         er.room.heating = heat;
@@ -361,16 +401,19 @@ angular.module('starter.controllers', [])
         var newrooms = sharedRoomData.getRooms();
         newrooms[er.room.id] = er.room;
         sharedRoomData.setRooms(newrooms);
-        console.log(newrooms);
+        var socket = io.connect('http://' + er.room.ip + ':3000');
+        socket.emit('room edit', {
+            edit: er.room
+        });
         $state.go('home');
     }
-
 })
 
-.controller("homeController", function ($scope, sharedBeacon, sharedRoomData) {
+.controller("homeController", function ($scope, sharedBeacon, sharedRoomData, mySocket) {
     ionic.material.ink.displayEffect();
 
     var home = this;
+
     this.rooms = sharedRoomData.getRooms();
     this.beacons = sharedBeacon.getBeacon();
     this.status = sharedBeacon.getStatus();
@@ -383,5 +426,4 @@ angular.module('starter.controllers', [])
         home.beacons = sharedBeacon.getBeacon();
         $scope.$apply();
     });
-
 })

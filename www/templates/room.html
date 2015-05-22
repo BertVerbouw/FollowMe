@@ -16,12 +16,15 @@
                 Beacon UUID: {{room.room.beacon}}
             </div>
             <div class="item item-divider">
+                R-Pi ip: {{room.room.ip}}
+            </div>
+            <div class="item item-divider">
                 Lights
             </div>
             <ion-item ng-repeat="light in room.room.lights" class="item item-toggle">
                 {{light.name}}
                 <label class="toggle toggle-positive">
-                    <input type="checkbox" ng-checked="light.state">
+                    <input type="checkbox" ng-model="light.state" ng-change="room.send(light)">
                     <div class="track">
                         <div class="handle"></div>
                     </div>
@@ -35,7 +38,7 @@
                 <ion-item ng-repeat="audio in room.room.audio" class="item item-toggle">
                     {{audio.name}}
                     <label class="toggle toggle-positive">
-                        <input type="checkbox" ng-checked="audio.state">
+                        <input type="checkbox" ng-model="audio.state" ng-change="room.send(audio)">
                         <div class="track">
                             <div class="handle"></div>
                         </div>
@@ -49,7 +52,7 @@
                 <ion-item ng-repeat="heating in room.room.heating" class="item item-toggle">
                     {{heating.name}}
                     <label class="toggle toggle-positive">
-                        <input type="checkbox" ng-checked="heating.state">
+                        <input type="checkbox" ng-model="heating.state" ng-change="room.send(heating)">
                         <div class="track">
                             <div class="handle"></div>
                         </div>

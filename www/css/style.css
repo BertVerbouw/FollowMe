@@ -24,18 +24,29 @@
 }
 
 .bar.bar-positive {
-    background-color: #3f51b5;
-    border-color: #3f51b5;
+    background-color: #03a9f4;
+    border-color: #03a9f4;
 }
 
 .button-overlay {
-    background-color: #3f51b5;
+    background-color: #03a9f4;
 }
 
 .button-overlay:hover {
-    background-color: #303f9f;
+    background-color: #0288d1;
 }
 
 .button-overlay i {
     color: white;
+}
+
+.no-padding {
+    padding: 0px !important;
+}
+
+.menu .bar.bar-header.expanded {
+    background-image: url("../img/Blue-Color-Scheme-Material-Design-Wallpaper.jpg");
+    background-size: 120% auto;
+    background-position: 0% center;
+    transition: all 0.5s ease-in-out 0s;
 }

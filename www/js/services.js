@@ -75,28 +75,3 @@ angular.module('starter.services', [])
         getClosest: getClosest,
     }
 })
-
-.service('mySocket', function ($rootScope) {
-    var ip;
-    var setIp = function ($ip, $room) {
-        ip = $ip;
-        var socket = io.connect('http://' + ip + ':3000');
-        console.log(socket);
-        socket.emit('roomData', $room);
-    }
-    var getIp = function () {
-        return ip;
-    }
-    return {
-        setIp: setIp,
-        getIp: getIp,
-    }
-
-    var testsocket = io.connect('http://192.168.0.109:3000');
-    testsocket.on('news', function (data) {
-        console.log(data);
-        testsocket.emit('my other event', {
-            my: 'FollowMe'
-        });
-    });
-})

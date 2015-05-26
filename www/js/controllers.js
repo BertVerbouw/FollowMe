@@ -197,7 +197,7 @@ angular.module('starter.controllers', [])
         var proxNear = [];
         for (var i in bt.beacons) {
             if (bt.beacons[i]) {
-                if (bt.beacons[i].proximity === "ProximityNear") {
+                if (bt.beacons[i].proximity === "ProximityNear" || bt.beacons[i].proximity === "ProximityImmediate") {
                     proxNear.push(bt.beacons[i]);
                 }
             } else {
@@ -236,7 +236,7 @@ angular.module('starter.controllers', [])
 
 }])
 
-.controller("roomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData, mySocket) {
+.controller("roomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData) {
     ionic.material.ink.displayEffect();
 
     var rm = this;
@@ -335,7 +335,7 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller("editRoomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData, mySocket) {
+.controller("editRoomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData) {
     ionic.material.ink.displayEffect();
 
     var er = this;
@@ -409,7 +409,7 @@ angular.module('starter.controllers', [])
     }
 })
 
-.controller("homeController", function ($scope, sharedBeacon, sharedRoomData, mySocket) {
+.controller("homeController", function ($scope, sharedBeacon, sharedRoomData) {
     ionic.material.ink.displayEffect();
 
     var home = this;

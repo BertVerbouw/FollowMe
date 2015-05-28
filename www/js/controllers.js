@@ -40,6 +40,9 @@ angular.module('starter.controllers', [])
     //Send data of room with id=$id to the service and go to the room view.
     this.goToRoom = function ($id) {
         sharedRoomData.setRoom(bt.rooms[$id]);
+        if (bt.rooms[$id].beacon) {
+            sharedBeacon.setTemp(bt.rooms[$id].beacon);
+        }
         $state.go('room');
     }
 
@@ -210,6 +213,10 @@ angular.module('starter.controllers', [])
                 socket.emit('location', {
                     turn: 'off'
                 });
+                var socket = io.connect('http://' + bt.Closest.ip + ':3000');
+                socket.emit('location', {
+                    turn: 'off'
+                });
                 bt.prevClosest = {
                     'name': '',
                     'ip': ''
@@ -266,18 +273,21 @@ angular.module('starter.controllers', [])
 
 }])
 
+
 .controller("roomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData, dbfactory, sharedBeacon) {
     ionic.material.ink.displayEffect();
 
     var rm = this;
     this.ip;
-    this.newroom;
+    this.newroom = {};
     this.rooms = sharedRoomData.getRooms();
     this.room = sharedRoomData.getRoom();
+    this.temp = sharedBeacon.getTemp();
 
     $scope.$on('valuesUpdated', function () {
         rm.rooms = sharedRoomData.getRooms();
     });
+
     /*
     When 'roomUpdated' is broadcasted by the service, update the room object.
     */
@@ -286,6 +296,7 @@ angular.module('starter.controllers', [])
     });
 
     this.goToEdit = function ($id) {
+        console.log("ID: " + $id);
         sharedRoomData.setRoom(rm.rooms[$id]);
         $state.go('editRoom');
     }
@@ -300,7 +311,7 @@ angular.module('starter.controllers', [])
         for (var i = 1; i <= rm.numberOfLights; i++) {
             lights[i] = {
                 'name': '',
-                'state': '',
+                'state': false,
                 'id': amountLights + i
             };
         }
@@ -314,7 +325,7 @@ angular.module('starter.controllers', [])
         for (var i = 1; i <= rm.numberOfAudio; i++) {
             audio[i] = {
                 'name': '',
-                'state': '',
+                'state': false,
                 'id': amountAudios + i
             };
         }
@@ -328,28 +339,22 @@ angular.module('starter.controllers', [])
         for (var i = 1; i <= rm.numberOfHeating; i++) {
             heat[i] = {
                 'name': '',
-                'state': '',
+                'state': false,
                 'id': amountHeatings + i
             };
         }
         rm.newroom.heating = heat;
     }
 
-    this.getTemp = function ($uuid) {
-        var beacons = sharedBeacon.getBeacon();
-        console.log(JSON.stringify(beacons));
-        console.log($uuid);
-        return beacons[$uuid].temp;
-    }
 
     this.saveRoom = function () {
         if (rm.newroom.name && rm.newroom.beacon && rm.ip) {
             var amount = Object.keys(rm.rooms).length;
             rm.newroom.id = amount + 1;
             rm.newroom.ip = rm.ip;
-            rm.newroom.temp = rm.getTemp(rm.newroom.beacon);
             rm.rooms[amount + 1] = rm.newroom;
             sharedRoomData.setRooms(rm.rooms);
+            dbfactory.createRoomsDB(rm.rooms);
             var socket = io.connect('http://' + rm.ip + ':3000');
             socket.emit('room data', {
                 save: rm.newroom
@@ -370,12 +375,21 @@ angular.module('starter.controllers', [])
     this.remove = function ($id) {
         delete rm.rooms[$id];
         sharedRoomData.setRooms(rm.rooms);
+        dbfactory.deleteRoomDB($id);
         $state.go('home');
     }
 
+    this.updateRoom = function ($id) {
+        dbfactory.deleteRoomDB($id);
+        dbfactory.createRoomBD(rm.room);
+        sharedRoomData.setRoom(rm.room);
+        $state.go('home');
+    }
+
+
 })
 
-.controller("editRoomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData) {
+.controller("editRoomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData, dbfactory) {
     ionic.material.ink.displayEffect();
 
     var er = this;
@@ -402,17 +416,15 @@ angular.module('starter.controllers', [])
     }
 
 
-
     this.initLights = function () {
         var lights = {};
         var amountLights = sharedRoomData.getTotalLights();
         for (var i = 1; i <= er.numberOfLights; i++) {
             lights[i] = {
                 'name': '',
-                'state': '',
+                'state': false,
                 'id': amountLights + i
             };
-            sharedRoomData.addTotalLights();
         }
         er.room.lights = lights;
     }
@@ -423,10 +435,9 @@ angular.module('starter.controllers', [])
         for (var i = 1; i <= er.numberOfAudio; i++) {
             audio[i] = {
                 'name': '',
-                'state': '',
+                'state': false,
                 'id': amountAudios + i
             };
-            sharedRoomData.addTotalAudios();
         }
         er.room.audio = audio;
     }
@@ -437,21 +448,23 @@ angular.module('starter.controllers', [])
         for (var i = 1; i <= er.numberOfHeating; i++) {
             heat[i] = {
                 'name': '',
-                'state': '',
+                'state': false,
                 'id': amountHeatings + i
             };
-            sharedRoomData.addTotalHeatings();
         }
         er.room.heating = heat;
     }
+
 
     this.saveRoom = function () {
         var newrooms = sharedRoomData.getRooms();
         newrooms[er.room.id] = er.room;
         sharedRoomData.setRooms(newrooms);
+        dbfactory.deleteRoomDB(er.room.id);
+        dbfactory.createRoomBD(er.room);
         var socket = io.connect('http://' + er.room.ip + ':3000');
-        socket.emit('room edit', {
-            edit: er.room
+        socket.emit('room data', {
+            save: er.room
         });
         $state.go('home');
     }

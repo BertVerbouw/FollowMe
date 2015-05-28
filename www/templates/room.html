@@ -2,7 +2,7 @@
 
     <body>
         <ion-nav-buttons side="left">
-            <button class="button button-clear button-icon icon ion-android-arrow-back" ng-click="$state.go('home')">
+            <button class="button button-clear button-icon icon ion-android-arrow-back" ng-click="room.updateRoom(room.room.id)">
             </button>
         </ion-nav-buttons>
         <ion-nav-buttons side="right">
@@ -17,7 +17,7 @@
                 R-Pi ip: {{room.room.ip}}
             </div>
             <div class="item item-divider">
-                Temperature: {{room.room.temp}}
+                Temperature: {{room.temp}}
             </div>
             <div class="item item-divider">
                 Lights

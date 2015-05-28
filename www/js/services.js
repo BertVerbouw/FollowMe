@@ -4,6 +4,7 @@ angular.module('starter.services', [])
 .service('sharedBeacon', function ($rootScope) {
     var sharedBeacon = {};
     var status = "Scan";
+    var temp = "msquidf";
     var setBeacon = function ($beacon) {
         sharedBeacon = $beacon;
         $rootScope.$broadcast("valuesUpdated");
@@ -14,8 +15,13 @@ angular.module('starter.services', [])
     var getStatus = function () {
         return status;
     }
-    var setTemp = function ($temp) {
-        temp = $temp;
+    var setTemp = function ($uuid) {
+        console.log(JSON.stringify(sharedBeacon));
+        if (sharedBeacon[$uuid]) {
+            temp = sharedBeacon[$uuid].temp;
+        } else {
+            temp = "unkown";
+        }
     }
     var getTemp = function () {
         return temp;
@@ -41,7 +47,7 @@ angular.module('starter.services', [])
     var sharedRoomsData = {};
     // ELENA: COMPLETADA LA PARTE DE DB
     var setRooms = function ($rooms) {
-        dbfactory.createRoomsDB($rooms); // ADD BY ELENA
+        console.log("SETROOMS rooms: " + JSON.stringify($rooms));
         sharedRoomsData = $rooms;
         console.log("sharedroomsdata: " + JSON.stringify(sharedRoomsData));
         $rootScope.$broadcast("valuesUpdated");
@@ -51,18 +57,20 @@ angular.module('starter.services', [])
         return sharedRoomsData;
     }
 
-
     var getRoomsFromDB = function () {
 
         var deferred = $q.defer();
 
         dbfactory.getRoomsDB().then(function (res) {
             if (res) {
+                console.log("estoy aqui y res es: " + JSON.stringify(res));
                 deferred.resolve(res);
             } else {
+                console.log("no data resolve: ");
                 deferred.reject('no data');
             }
         }, function (error) {
+            console.log("No results in getRooms of service");
             deferred.reject('Error: ' + error);
         });
 
@@ -72,14 +80,23 @@ angular.module('starter.services', [])
 
     var sharedRoomData = {};
     var setRoom = function ($room) {
+        console.log("ROOOOOOOM: " + JSON.stringify($room));
         sharedRoomData = $room;
         $rootScope.$broadcast("roomUpdated");
     }
+
+    /*
+       dbfactory.createRoomsDB($rooms); // ADD BY ELENA
+        sharedRoomsData = $rooms;
+        console.log("sharedroomsdata: " + JSON.stringify(sharedRoomsData));
+        $rootScope.$broadcast("valuesUpdated");
+     */
+
     var getRoom = function () {
         return sharedRoomData;
     }
 
-    var totalLights;
+    var totalLights = 0;
 
     var getTotalLights = function () {
 
@@ -91,11 +108,12 @@ angular.module('starter.services', [])
             }
         });
 
+
         return totalLights;
     }
 
     // control number audios
-    var totalAudios;
+    var totalAudios = 0;
 
     var getTotalAudios = function () {
 
@@ -111,7 +129,7 @@ angular.module('starter.services', [])
     }
 
     // control number heatings
-    var totalHeatings;
+    var totalHeatings = 0;
 
     var getTotalHeatings = function () {
 

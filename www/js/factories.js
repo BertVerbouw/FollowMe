@@ -6,13 +6,14 @@ angular.module('starter.factories', [])
 
     // function just for programming, DELETE IT! 	
     var verTablas = function () {
+        console.log("ESTADO DE LA BASE DE DATOS: ");
         $cordovaSQLite.execute(db, "SELECT * FROM rooms").then(function (res) {
             if (res.rows.length > 0) {
                 for (i = 0; i < res.rows.length; i++) {
-
+                    console.log("Rooms " + i + "> " + res.rows.item(i).roomid + " , " + res.rows.item(i).name + " , " + res.rows.item(i).beacon);
                 }
             } else {
-
+                console.log("No rooms");
             }
         }, function (err) {
             console.error(err);
@@ -21,10 +22,10 @@ angular.module('starter.factories', [])
         $cordovaSQLite.execute(db, "SELECT * FROM lights").then(function (res) {
             if (res.rows.length > 0) {
                 for (i = 0; i < res.rows.length; i++) {
-
+                    console.log("Lights " + i + "> " + res.rows.item(i).lightid + " , " + res.rows.item(i).name + " , " + res.rows.item(i).room + " , " + res.rows.item(i).state);
                 }
             } else {
-
+                console.log("No lights");
             }
         }, function (err) {
             console.error(err);
@@ -33,10 +34,10 @@ angular.module('starter.factories', [])
         $cordovaSQLite.execute(db, "SELECT * FROM audios").then(function (res) {
             if (res.rows.length > 0) {
                 for (i = 0; i < res.rows.length; i++) {
-
+                    console.log("Audios " + i + "> " + res.rows.item(i).audioid + " , " + res.rows.item(i).name + " , " + res.rows.item(i).room + " , " + res.rows.item(i).state + " , " + res.rows.item(i).volume);
                 }
             } else {
-
+                console.log("No audios");
             }
         }, function (err) {
             console.error(err);
@@ -45,10 +46,10 @@ angular.module('starter.factories', [])
         $cordovaSQLite.execute(db, "SELECT * FROM heatings").then(function (res) {
             if (res.rows.length > 0) {
                 for (i = 0; i < res.rows.length; i++) {
-
+                    console.log("Heatings " + i + "> " + res.rows.item(i).heatingid + " , " + res.rows.item(i).name + " , " + res.rows.item(i).room + " , " + res.rows.item(i).state + " , " + res.rows.item(i).temperature);
                 }
             } else {
-
+                console.log("No heatings");
             }
         }, function (err) {
             console.error(err);
@@ -61,36 +62,37 @@ angular.module('starter.factories', [])
             db = $cordovaSQLite.openDB({
                 name: "my.db"
             });
-
+            console.log("OPENING DB");
         }
     };
 
     // Create the tables in the database 
     var createTablesBD = function () {
 
+        console.log("CREATING TABLES");
 
         openDB();
         // creamos la tabla para las habitaciones, las luces, radios...
-        $cordovaSQLite.execute(db, "CREATE TABLE IF NOT EXISTS rooms (roomid INTEGER PRIMARY KEY, name TEXT, beacon INTEGER)").then(function () {
-
+        $cordovaSQLite.execute(db, "CREATE TABLE IF NOT EXISTS rooms (roomid INTEGER PRIMARY KEY, name TEXT, beacon INTEGER, ip TEXT)").then(function () {
+            console.log("CREATE TABLE rooms");
         }, function (err) {
             console.error(err);
         });
 
         $cordovaSQLite.execute(db, "CREATE TABLE IF NOT EXISTS lights (lightid INTEGER PRIMARY KEY, name TEXT, room INTEGER, state BOOLEAN, FOREIGN KEY(room) REFERENCES rooms(roomid))").then(function () {
-
+            console.log("CREATE TABLE lights");
         }, function (err) {
             console.error(err);
         })
 
         $cordovaSQLite.execute(db, "CREATE TABLE IF NOT EXISTS audios (audioid INTEGER PRIMARY KEY, name TEXT, room INTEGER, state BOOLEAN, volume INTEGER, FOREIGN KEY(room) REFERENCES rooms(roomid))").then(function () {
-
+            console.log("CREATE TABLE audios");
         }, function (err) {
             console.error(err);
         })
 
         $cordovaSQLite.execute(db, "CREATE TABLE IF NOT EXISTS heatings (heatingid INTEGER PRIMARY KEY, name TEXT, room INTEGER, state BOOLEAN, temperature INTEGER, FOREIGN KEY(room) REFERENCES rooms(roomid))").then(function () {
-
+            console.log("CREATE TABLE heatings");
         }, function (err) {
             console.error(err);
         })
@@ -115,7 +117,7 @@ angular.module('starter.factories', [])
 
         }, function (err) {
             console.error(err);
-            deferred.resolve(0);
+            deferred.resolve(err);
         });
 
         return deferred.promise;
@@ -138,7 +140,7 @@ angular.module('starter.factories', [])
 
         }, function (err) {
             console.error(err);
-            deferred.resolve(0);
+            deferred.resolve(err);
         });
 
         return deferred.promise;
@@ -155,13 +157,13 @@ angular.module('starter.factories', [])
             if (res.rows.length > 0) {
                 deferred.resolve(res.rows.item(0));
             } else {
-
+                console.log("No heatings");
                 deferred.resolve(0);
             }
 
         }, function (err) {
             console.error(err);
-            deferred.resolve(0);
+            deferred.resolve(err);
         });
 
         return deferred.promise;
@@ -169,10 +171,10 @@ angular.module('starter.factories', [])
 
     // create rooms in the DB
     var createRoomsDB = function (rooms) {
-
+        console.log("createroomsdb: " + JSON.stringify(rooms));
         // creamos las diferentes habitaciones
         for (i = 1; i <= Object.keys(rooms).length; i++) {
-
+            console.log("create room: " + JSON.stringify(rooms[i.toString()]));
             createRoomBD(rooms[i.toString()]);
 
         }
@@ -182,8 +184,8 @@ angular.module('starter.factories', [])
     // create a room in the DB
     var createRoomBD = function (room) {
 
-        $cordovaSQLite.execute(db, "INSERT OR IGNORE INTO rooms VALUES(?,?,?)", [room.id, room.name, room.beacon]).then(function () {
-
+        $cordovaSQLite.execute(db, "INSERT OR IGNORE INTO rooms VALUES(?,?,?,?)", [room.id, room.name, room.beacon, room.ip]).then(function () {
+            console.log("INSERT room: " + room.name);
         }, function (err) {
             console.error(err);
         });
@@ -214,7 +216,7 @@ angular.module('starter.factories', [])
     var createLightBD = function (roomid, light) {
 
         $cordovaSQLite.execute(db, "INSERT OR IGNORE INTO lights VALUES(?,?,?,?)", [light.id, light.name, roomid, light.state]).then(function () {
-
+            console.log("INSERT lights: " + light.name);
         }, function (err) {
             console.error(err);
         });
@@ -224,7 +226,7 @@ angular.module('starter.factories', [])
     var createAudioBD = function (roomid, audio) {
 
         $cordovaSQLite.execute(db, "INSERT OR IGNORE INTO audios VALUES(?,?,?,?,?)", [audio.id, audio.name, roomid, audio.state, audio.volume]).then(function () {
-
+            console.log("INSERT audios: " + audio.name);
         }, function (err) {
             console.error(err);
         });
@@ -234,7 +236,7 @@ angular.module('starter.factories', [])
     var createHeatingBD = function (roomid, heating) {
 
         $cordovaSQLite.execute(db, "INSERT OR IGNORE INTO heatings VALUES(?,?,?,?,?)", [heating.id, heating.name, roomid, heating.state, heating.temperature]).then(function () {
-
+            console.log("INSERT heatings: " + heating.name);
         }, function (err) {
             console.error(err);
         });
@@ -250,27 +252,29 @@ angular.module('starter.factories', [])
         $cordovaSQLite.execute(db, "SELECT * FROM rooms").then(function (res) {
             if (res.rows.length > 0) {
                 var rooms = {};
+                var promiseArray = {};
                 for (i = 0; i < res.rows.length; i++) {
-
-                    getRoomInformation(res.rows.item(i).roomid).then(function (res) {
-
-                        if (res) {
-                            rooms[i] = res;
-                        } else {
-                            console.log("ERR");
-                        }
-
-                        deferred.resolve(rooms);
-                    });
+                    console.log("Rooms> " + res.rows.item(i).roomid + " , " + res.rows.item(i).name + " , " + res.rows.item(i).saveButton + " , " + res.rows.item(i).beacon);
+                    promiseArray[i + 1] = getRoomInformation(res.rows.item(i).roomid);
+                    console.log("PA: " + JSON.stringify(promiseArray[i + 1]));
                 }
+                console.log("AQUI promiseArray: " + JSON.stringify(promiseArray));
+                $q.all(promiseArray).then(function (res) {
+                    console.log("All Returned");
+                    console.log("res: " + JSON.stringify(res));
+                    deferred.resolve(res);
+                }, function (err) {
+                    console.error(err);
+                    deferred.reject(err);
+                });
             } else {
-
-                deferred.reject()
+                console.log("No results found");
+                deferred.resolve(0);
 
             }
         }, function (err) {
             console.error(err);
-            deferred.reject(err)
+            deferred.reject(err);
         });
 
         return deferred.promise;
@@ -283,18 +287,18 @@ angular.module('starter.factories', [])
 
         $cordovaSQLite.execute(db, "SELECT * FROM rooms WHERE roomid=?", [roomid]).then(function (res) {
             if (res.rows.length > 0) {
-
+                console.log("Room> " + res.rows.item(0).roomid + " , " + res.rows.item(0).name + " , " + res.rows.item(0).saveButton + " , " + res.rows.item(0).beacon);
                 room = {
                     'id': res.rows.item(0).roomid,
                     'name': res.rows.item(0).name,
-                    'saveButton': res.rows.item(0).saveButton,
                     'beacon': res.rows.item(0).beacon,
+                    'ip': res.rows.item(0).ip
                 };
-
+                console.log("room q se envia desde getroomdb: " + JSON.stringify(room));
                 deferred.resolve(room);
             } else {
-
-                deferred.reject();
+                console.log("No results found");
+                deferred.resolve(0);
             }
         }, function (err) {
             console.error(err);
@@ -311,6 +315,7 @@ angular.module('starter.factories', [])
 
         var roomInfo = {};
 
+        console.log("GETROOMINFORMATION");
 
         getRoomDB(roomId).then(function (roomData) {
 
@@ -318,6 +323,9 @@ angular.module('starter.factories', [])
             roomInfo.name = roomData.name;
             roomInfo.saveButton = roomData.saveButton;
             roomInfo.beacon = roomData.beacon;
+            roomInfo.ip = roomData.ip;
+
+            console.log("roomInfo:" + JSON.stringify(roomInfo));
 
             return getLightsRoomDB(roomId);
 
@@ -325,11 +333,15 @@ angular.module('starter.factories', [])
 
             roomInfo.lights = lightInformationData;
 
+            console.log("roomInfo:" + JSON.stringify(roomInfo));
+
             return getAudiosRoomDB(roomId);
 
         }).then(function (audioInformationData) {
 
             roomInfo.audio = audioInformationData;
+
+            console.log("roomInfo:" + JSON.stringify(roomInfo));
 
             return getHeatingsRoomDB(roomId);
 
@@ -337,12 +349,15 @@ angular.module('starter.factories', [])
 
             roomInfo.heating = heatingInformationData;
 
+            console.log("roomInfo:" + JSON.stringify(roomInfo));
+
             deferred.resolve(roomInfo);
 
         }, function (error) {
-            deferred.reject(roomInfo);
+            deferred.reject(error);
         });
 
+        console.log("AQUI");
         return deferred.promise;
     }
 
@@ -353,21 +368,20 @@ angular.module('starter.factories', [])
         $cordovaSQLite.execute(db, "SELECT * FROM lights WHERE room=?", [roomid]).then(function (res) {
             if (res.rows.length > 0) {
                 var lights = {};
+                var promiseArray = {};
                 for (i = 0; i < res.rows.length; i++) {
-                    getLightDB(res.rows.item(i).lightid).then(function (res) {
-                        if (res) {
-                            lights[i] = res;
-                        } else {
-
-                        }
-                        deferred.resolve(lights);
-                    });
+                    promiseArray[i + 1] = getLightDB(res.rows.item(i).lightid);
                 }
+                $q.all(promiseArray).then(function (res) {
+                    deferred.resolve(res);
+                })
             } else {
-
+                console.log("No lights in the room");
+                deferred.resolve(0);
             }
         }, function (err) {
             console.error(err);
+            deferred.reject(err);
         });
 
         return deferred.promise;
@@ -383,18 +397,32 @@ angular.module('starter.factories', [])
                 light = {
                     'id': res.rows.item(0).lightid,
                     'name': res.rows.item(0).name,
-                    'state': res.rows.item(0).state
+                    'state': toBool(res.rows.item(0).state)
                 };
                 deferred.resolve(light);
             } else {
-
+                console.log("No results found");
+                deferred.resolve(0);
             }
         }, function (err) {
             console.error(err);
+            deffered.reject(err);
         });
 
         return deferred.promise;
     }
+
+    var toBool = function (string) {
+        var bool;
+        if (string === "true")
+            bool = true;
+        else if (string === "false")
+            bool = false;
+        else
+            console.log("ERROR");
+        return bool;
+    }
+
 
     var getAudiosRoomDB = function (roomid) {
 
@@ -403,21 +431,20 @@ angular.module('starter.factories', [])
         $cordovaSQLite.execute(db, "SELECT * FROM audios WHERE room=?", [roomid]).then(function (res) {
             if (res.rows.length > 0) {
                 var audios = {};
+                var promiseArray = {};
                 for (i = 0; i < res.rows.length; i++) {
-                    getAudioDB(res.rows.item(i).audioid).then(function (res) {
-                        if (res) {
-                            audios[i] = res;
-                        } else {
-                            console.log("ERR");
-                        }
-                        deferred.resolve(audios);
-                    });
+                    promiseArray[i + 1] = getAudioDB(res.rows.item(i).audioid);
                 }
+                $q.all(promiseArray).then(function (res) {
+                    deferred.resolve(res);
+                })
             } else {
-
+                console.log("No audios in the room");
+                deferred.resolve(0);
             }
         }, function (err) {
             console.error(err);
+            deferred.reject(err);
         });
 
         return deferred.promise;
@@ -433,35 +460,19 @@ angular.module('starter.factories', [])
                 audio = {
                     'id': res.rows.item(0).audioid,
                     'name': res.rows.item(0).name,
-                    'state': res.rows.item(0).state
+                    'state': toBool(res.rows.item(0).state)
                 };
                 deferred.resolve(audio);
             } else {
-
+                console.log("No results found");
+                deferred.resolve(0);
             }
         }, function (err) {
             console.error(err);
+            deferred.reject(err);
         });
 
         return deferred.promise;
-    }
-
-    var getHeatingsRoomDB = function (roomid) {
-
-        $cordovaSQLite.execute(db, "SELECT * FROM heatings WHERE room=?", [roomid]).then(function (res) {
-            if (res.rows.length > 0) {
-                for (i = 0; i < res.rows.length; i++) {
-                    heatings[i] = getHeatingDB(res.rows.item(i).heatingid);
-                }
-                return heatings;
-            } else {
-
-                return {};
-            }
-        }, function (err) {
-            console.error(err);
-        });
-
     }
 
     var getHeatingsRoomDB = function (roomid) {
@@ -471,21 +482,20 @@ angular.module('starter.factories', [])
         $cordovaSQLite.execute(db, "SELECT * FROM heatings WHERE room=?", [roomid]).then(function (res) {
             if (res.rows.length > 0) {
                 var heatings = {};
+                var promiseArray = {};
                 for (i = 0; i < res.rows.length; i++) {
-                    getHeatingDB(res.rows.item(i).heatingid).then(function (res) {
-                        if (res) {
-                            heatings[i] = res;
-                        } else {
-                            console.log("ERR");
-                        }
-                        deferred.resolve(heatings);
-                    });
+                    promiseArray[i + 1] = getHeatingDB(res.rows.item(i).heatingid);
                 }
+                $q.all(promiseArray).then(function (res) {
+                    deferred.resolve(res);
+                })
             } else {
-
+                console.log("No heatings in the room");
+                deferred.resolve(0);
             }
         }, function (err) {
             console.error(err);
+            deferred.reject(err);
         });
 
         return deferred.promise;
@@ -501,14 +511,16 @@ angular.module('starter.factories', [])
                 heating = {
                     'id': res.rows.item(0).heatingid,
                     'name': res.rows.item(0).name,
-                    'state': res.rows.item(0).state
+                    'state': toBool(res.rows.item(0).state)
                 };
                 deferred.resolve(heating);
             } else {
-
+                console.log("No results found");
+                deferred.resolve(0);
             }
         }, function (err) {
             console.error(err);
+            deferred.reject(err);
         });
 
         return deferred.promise;
@@ -518,6 +530,21 @@ angular.module('starter.factories', [])
     var deleteRoomDB = function (roomid) {
         $cordovaSQLite.execute(db, "DELETE FROM rooms WHERE roomid=?", [roomid]).then(function () {
             console.log("DELETE room");
+        }, function (err) {
+            console.error(err);
+        });
+        $cordovaSQLite.execute(db, "DELETE FROM lights WHERE room=?", [roomid]).then(function () {
+            console.log("DELETE light")
+        }, function (err) {
+            console.error(err);
+        });
+        $cordovaSQLite.execute(db, "DELETE FROM audios WHERE room=?", [roomid]).then(function () {
+            console.log("DELETE audio")
+        }, function (err) {
+            console.error(err);
+        });
+        $cordovaSQLite.execute(db, "DELETE FROM heatings WHERE room=?", [roomid]).then(function () {
+            console.log("DELETE heating")
         }, function (err) {
             console.error(err);
         });
@@ -546,6 +573,7 @@ angular.module('starter.factories', [])
         openDB: openDB,
         createTablesBD: createTablesBD,
         createRoomsDB: createRoomsDB,
+        createRoomBD: createRoomBD,
         getTotalLights: getTotalLights,
         getTotalAudios: getTotalAudios,
         getTotalHeatings: getTotalHeatings,

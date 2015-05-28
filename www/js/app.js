@@ -45,7 +45,7 @@ angular.module('starter', ['ionic', 'starter.factories', 'starter.controllers', 
             $timeout(function () {
                 console.log("data: " + JSON.stringify(data));
                 sharedRoomData.setRooms(data);
-                console.log("sharedroomsdata: " + JSON.stringify(sharedRoomData.getRooms()));
+                console.log("sharedroomsdata: " + JSON.stringify(sharedRoomData.sharedRoomsData));
 
             }, 50);
 
@@ -56,6 +56,7 @@ angular.module('starter', ['ionic', 'starter.factories', 'starter.controllers', 
     });
 
 })
+
 
 .config(function ($stateProvider, $urlRouterProvider) {
     $stateProvider

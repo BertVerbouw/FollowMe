@@ -266,12 +266,12 @@ angular.module('starter.controllers', [])
 
 }])
 
-.controller("roomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData, dbfactory) {
+.controller("roomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData, dbfactory, sharedBeacon) {
     ionic.material.ink.displayEffect();
 
     var rm = this;
     this.ip;
-    this.newroom = {};
+    this.newroom;
     this.rooms = sharedRoomData.getRooms();
     this.room = sharedRoomData.getRoom();
 
@@ -335,11 +335,19 @@ angular.module('starter.controllers', [])
         rm.newroom.heating = heat;
     }
 
+    this.getTemp = function ($uuid) {
+        var beacons = sharedBeacon.getBeacon();
+        console.log(JSON.stringify(beacons));
+        console.log($uuid);
+        return beacons[$uuid].temp;
+    }
+
     this.saveRoom = function () {
         if (rm.newroom.name && rm.newroom.beacon && rm.ip) {
             var amount = Object.keys(rm.rooms).length;
             rm.newroom.id = amount + 1;
             rm.newroom.ip = rm.ip;
+            rm.newroom.temp = rm.getTemp(rm.newroom.beacon);
             rm.rooms[amount + 1] = rm.newroom;
             sharedRoomData.setRooms(rm.rooms);
             var socket = io.connect('http://' + rm.ip + ':3000');

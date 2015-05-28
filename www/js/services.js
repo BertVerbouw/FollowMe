@@ -14,9 +14,17 @@ angular.module('starter.services', [])
     var getStatus = function () {
         return status;
     }
+    var setTemp = function ($temp) {
+        temp = $temp;
+    }
+    var getTemp = function () {
+        return temp;
+    }
 
     return {
         setBeacon: setBeacon,
+        setTemp: setTemp,
+        getTemp: getTemp,
         getBeacon: getBeacon,
         getStatus: getStatus,
         beacon: function () {

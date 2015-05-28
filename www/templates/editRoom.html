@@ -26,7 +26,7 @@
                     Select beacon
                 </label>
                 <select ng-model="room.room.beacon" ng-required>
-                    <option ng-repeat="beacon in bluetooth.beacons" ng-if="beacon.type==='nordic beacon'">{{beacon.uuid}}</option>
+                    <option ng-repeat="beacon in bluetooth.beacons">{{beacon.uuid}}</option>
                 </select>
             </label>
 

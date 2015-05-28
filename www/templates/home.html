@@ -19,7 +19,7 @@
                 <div class="item item-divider">
                     Beacons in range
                 </div>
-                <ion-list class="animate-ripple">
+                <ion-list>
                     <ion-item ng-repeat="beacon in home.beacons" ng-if="beacon!==undefined">
                         <p>{{beacon.type}}: {{beacon.rssi}}</p>
                     </ion-item>

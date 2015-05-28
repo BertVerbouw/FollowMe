@@ -28,15 +28,39 @@ angular.module('starter.services', [])
     }
 })
 
-.service('sharedRoomData', function ($rootScope) {
+.service('sharedRoomData', function ($rootScope, dbfactory, $timeout, $q) {
+
     var sharedRoomsData = {};
+    // ELENA: COMPLETADA LA PARTE DE DB
     var setRooms = function ($rooms) {
+        dbfactory.createRoomsDB($rooms); // ADD BY ELENA
         sharedRoomsData = $rooms;
+        console.log("sharedroomsdata: " + JSON.stringify(sharedRoomsData));
         $rootScope.$broadcast("valuesUpdated");
     }
+
     var getRooms = function () {
         return sharedRoomsData;
     }
+
+
+    var getRoomsFromDB = function () {
+
+        var deferred = $q.defer();
+
+        dbfactory.getRoomsDB().then(function (res) {
+            if (res) {
+                deferred.resolve(res);
+            } else {
+                deferred.reject('no data');
+            }
+        }, function (error) {
+            deferred.reject('Error: ' + error);
+        });
+
+        return deferred.promise;
+    }
+
 
     var sharedRoomData = {};
     var setRoom = function ($room) {
@@ -45,6 +69,53 @@ angular.module('starter.services', [])
     }
     var getRoom = function () {
         return sharedRoomData;
+    }
+
+    var totalLights;
+
+    var getTotalLights = function () {
+
+        dbfactory.getTotalLights().then(function (res) {
+            if (res.cont) {
+                totalLights = res.cont;
+            } else {
+                totalLights = 0;
+            }
+        });
+
+        return totalLights;
+    }
+
+    // control number audios
+    var totalAudios;
+
+    var getTotalAudios = function () {
+
+        dbfactory.getTotalAudios().then(function (res) {
+            if (res.cont) {
+                totalAudios = res.cont;
+            } else {
+                totalAudios = 0;
+            }
+        });
+
+        return totalAudios;
+    }
+
+    // control number heatings
+    var totalHeatings;
+
+    var getTotalHeatings = function () {
+
+        dbfactory.getTotalHeatings().then(function (res) {
+            if (res.cont) {
+                totalHeatings = res.cont;
+            } else {
+                totalHeatings = 0;
+            }
+        });
+
+        return totalHeatings;
     }
 
     return {
@@ -57,21 +128,32 @@ angular.module('starter.services', [])
         },
         roomData: function () {
             return sharedRoomData;
-        }
+        },
+        getTotalLights: getTotalLights,
+        getTotalAudios: getTotalAudios,
+        getTotalHeatings: getTotalHeatings,
+        getRoomsFromDB: getRoomsFromDB
+
     }
 })
 
 .service('sharedClose', function ($rootScope) {
     var name;
-    var setClosest = function ($closest) {
+    var ip;
+    var setClosest = function ($closest, $ip) {
         name = $closest;
+        ip = $ip;
         $rootScope.$broadcast("closeUpdated");
     }
     var getClosest = function () {
         return name;
     }
+    var getIp = function () {
+        return ip;
+    }
     return {
         setClosest: setClosest,
         getClosest: getClosest,
+        getIp: getIp
     }
 })

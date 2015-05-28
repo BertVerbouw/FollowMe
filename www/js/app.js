@@ -11,9 +11,9 @@ function readyFunct() {
 // the 2nd parameter is an array of 'requires'
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', 'ngCordova'])
+angular.module('starter', ['ionic', 'starter.factories', 'starter.controllers', 'starter.services', 'ngCordova'])
 
-.run(function ($ionicPlatform, $cordovaSQLite, $rootScope, $state) {
+.run(function ($ionicPlatform, $cordovaSQLite, $rootScope, $state, $timeout, dbfactory, sharedRoomData) {
     $ionicPlatform.ready(function () {
         // Hide the accessory bar by default (remove this to show the accessory bar
         // above the keyboard
@@ -29,6 +29,30 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services', '
             navigator.splashscreen.hide();
         });
         $rootScope.$state = $state;
+
+        // ADD BY ELENA
+        dbfactory.openDB();
+
+        $timeout(function () {
+            dbfactory.createTablesBD();
+        }, 2000);
+        // END ADD BY ELENA    
+
+        sharedRoomData.getRoomsFromDB().then(function (data) {
+
+            //From here you have the room data and you can call other functions, or do things with it
+
+            $timeout(function () {
+                console.log("data: " + JSON.stringify(data));
+                sharedRoomData.setRooms(data);
+                console.log("sharedroomsdata: " + JSON.stringify(sharedRoomData.getRooms()));
+
+            }, 50);
+
+        }, function (error) {
+
+            console.log("Error data return shared rooms: " + error);
+        });
     });
 
 })

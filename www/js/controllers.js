@@ -26,6 +26,11 @@ angular.module('starter.controllers', [])
 
     this.closest = sharedClose.getClosest();
 
+    this.prevClosest = {
+        'name': '',
+        'ip': ''
+    };
+
     var bt = this;
 
     this.rooms = sharedRoomData.getRooms();
@@ -109,7 +114,6 @@ angular.module('starter.controllers', [])
         var tempbeacons = sharedBeacon.getBeacon();
         tempbeacons[key] = beacon;
         sharedBeacon.setBeacon(tempbeacons);
-        ionic.material.motion.ripple();
     };
 
     /*
@@ -138,7 +142,6 @@ angular.module('starter.controllers', [])
                     uuid);
                 bt.beacons[uuid] = undefined;
                 $scope.checkClosest();
-                ionic.material.motion.ripple();
                 sharedBeacon.setBeacon(bt.beacons);
             }
         cordova.plugins.locationManager.setDelegate(delegate); //Set the delegate to be used
@@ -193,6 +196,7 @@ angular.module('starter.controllers', [])
     };
 
     $scope.checkClosest = function () {
+        var ip = 0;
         var name;
         var proxNear = [];
         for (var i in bt.beacons) {
@@ -202,6 +206,14 @@ angular.module('starter.controllers', [])
                 }
             } else {
                 name = "No Beacons close";
+                var socket = io.connect('http://' + bt.prevClosest.ip + ':3000');
+                socket.emit('location', {
+                    turn: 'off'
+                });
+                bt.prevClosest = {
+                    'name': '',
+                    'ip': ''
+                };
             }
         }
         if (proxNear) {
@@ -209,12 +221,30 @@ angular.module('starter.controllers', [])
             for (var i in proxNear) {
                 if (proxNear[i].rssi > power) {
                     power = proxNear[i].rssi;
-                    name = proxNear[i].type;
+                    name = proxNear[i].uuid;
+                    $scope.sendRPi(name);
                 }
             }
         }
         sharedClose.setClosest(name);
     };
+
+    $scope.sendRPi = function ($name) {
+        for (var i in bt.rooms) {
+            if (bt.rooms[i].beacon === $name && $name !== bt.prevClosest.name) {
+                var socket = io.connect('http://' + bt.rooms[i].ip + ':3000');
+                socket.emit('location', {
+                    turn: 'on'
+                });
+                var socket = io.connect('http://' + bt.prevClosest.ip + ':3000');
+                socket.emit('location', {
+                    turn: 'off'
+                });
+                bt.prevClosest.name = $name;
+                bt.prevClosest.ip = bt.rooms[i].ip;
+            }
+        }
+    }
 
     this.openPopover = function ($event) {
         $ionicPopover.fromTemplateUrl('templates/popover.html', {
@@ -236,7 +266,7 @@ angular.module('starter.controllers', [])
 
 }])
 
-.controller("roomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData) {
+.controller("roomController", function ($scope, $state, $cordovaSQLite, $timeout, sharedRoomData, dbfactory) {
     ionic.material.ink.displayEffect();
 
     var rm = this;
@@ -266,35 +296,40 @@ angular.module('starter.controllers', [])
     rm.numberOfLights = 0;
     this.initLights = function () {
         var lights = {};
-        for (var i = 0; i < rm.numberOfLights; i++) {
+        var amountLights = sharedRoomData.getTotalLights();
+        for (var i = 1; i <= rm.numberOfLights; i++) {
             lights[i] = {
                 'name': '',
                 'state': '',
-                'id': i
+                'id': amountLights + i
             };
         }
         rm.newroom.lights = lights;
     }
+
     rm.numberOfAudio = 0;
     this.initAudio = function () {
         var audio = {};
-        for (var i = 0; i < rm.numberOfAudio; i++) {
+        var amountAudios = sharedRoomData.getTotalAudios();
+        for (var i = 1; i <= rm.numberOfAudio; i++) {
             audio[i] = {
                 'name': '',
                 'state': '',
-                'id': i
+                'id': amountAudios + i
             };
         }
         rm.newroom.audio = audio;
     }
+
     rm.numberOfHeating = 0;
     this.initHeating = function () {
         var heat = {};
-        for (var i = 0; i < rm.numberOfHeating; i++) {
+        var amountHeatings = sharedRoomData.getTotalHeatings();
+        for (var i = 1; i <= rm.numberOfHeating; i++) {
             heat[i] = {
                 'name': '',
                 'state': '',
-                'id': i
+                'id': amountHeatings + i
             };
         }
         rm.newroom.heating = heat;
@@ -308,11 +343,8 @@ angular.module('starter.controllers', [])
             rm.rooms[amount + 1] = rm.newroom;
             sharedRoomData.setRooms(rm.rooms);
             var socket = io.connect('http://' + rm.ip + ':3000');
-            socket.on('news', function (data) {
-                console.log(data);
-                socket.emit('room data', {
-                    save: rm.newroom
-                });
+            socket.emit('room data', {
+                save: rm.newroom
             });
             $state.go('home');
         } else {
@@ -365,34 +397,42 @@ angular.module('starter.controllers', [])
 
     this.initLights = function () {
         var lights = {};
-        for (var i = 0; i < er.numberOfLights; i++) {
+        var amountLights = sharedRoomData.getTotalLights();
+        for (var i = 1; i <= er.numberOfLights; i++) {
             lights[i] = {
                 'name': '',
                 'state': '',
-                'id': i
+                'id': amountLights + i
             };
+            sharedRoomData.addTotalLights();
         }
         er.room.lights = lights;
     }
+
     this.initAudio = function () {
         var audio = {};
-        for (var i = 0; i < er.numberOfAudio; i++) {
+        var amountAudios = sharedRoomData.getTotalAudios();
+        for (var i = 1; i <= er.numberOfAudio; i++) {
             audio[i] = {
                 'name': '',
                 'state': '',
-                'id': i
+                'id': amountAudios + i
             };
+            sharedRoomData.addTotalAudios();
         }
         er.room.audio = audio;
     }
+
     this.initHeating = function () {
         var heat = {};
-        for (var i = 0; i < er.numberOfHeating; i++) {
+        var amountHeatings = sharedRoomData.getTotalHeatings();
+        for (var i = 1; i <= er.numberOfHeating; i++) {
             heat[i] = {
                 'name': '',
                 'state': '',
-                'id': i
+                'id': amountHeatings + i
             };
+            sharedRoomData.addTotalHeatings();
         }
         er.room.heating = heat;
     }
@@ -407,6 +447,12 @@ angular.module('starter.controllers', [])
         });
         $state.go('home');
     }
+
+    $scope.$on('roomUpdated', function () {
+        er.room = sharedRoomData.getRoom();
+    });
+
+
 })
 
 .controller("homeController", function ($scope, sharedBeacon, sharedRoomData) {
